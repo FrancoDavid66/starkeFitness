@@ -1,0 +1,15 @@
+{
+  "name": "Starke Fitness",
+  "short_name": "Starke",
+  "description": "Centro de entrenamiento integral en González Catán. Shop de suplementos con retiro en el gym.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "lang": "es-AR",
+  "icons": [
+    { "src": "/icono-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icono-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

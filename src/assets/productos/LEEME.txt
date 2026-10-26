@@ -1,0 +1,7 @@
+Acá van las fotos de los productos del shop (la principal y la de cada sabor / tamaño).
+
+- Se bajan solas desde ENA con:  npm run fotos
+  Quedan con el mismo nombre de archivo que tienen en ENA (por ejemplo Crea300FpMono.webp).
+- Si una foto no está acá, la web usa la foto online de ENA.
+- Para poner a mano la foto principal de un producto, guardala con el id del producto
+  (el que figura en src/data/productos.js), por ejemplo: creatina.webp o pre-war.jpg
