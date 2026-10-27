@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import TarjetaProducto from '../components/TarjetaProducto';
+import MarcasShop from '../components/MarcasShop';
 import { IconoLupa } from '../components/Iconos';
 import { CATEGORIAS, MARCAS, OBJETIVOS, nombreCategoria, productos } from '../data/productos';
 import { shop } from '../data/starke';
@@ -97,6 +98,15 @@ export default function Shop() {
         </p>
       </section>
 
+      {/* tarjetas de marca; al elegir una se convierten en el banner de esa marca */}
+      <MarcasShop
+        marca={marca}
+        onElegir={(k) => {
+          setMarca(k);
+          alFiltrar();
+        }}
+      />
+
       <div
         ref={herramientas}
         className="sticky z-20 grid gap-3.5 border-b-2 border-linea bg-black/[.97] px-gutter py-4 backdrop-blur-md transition-[top] duration-300"
@@ -118,7 +128,8 @@ export default function Shop() {
             />
           </label>
 
-          <div className="sin-barra flex items-center gap-2 overflow-x-auto" role="group" aria-label="Marca">
+          {/* en compu la marca también se cambia desde la barra fija; en el celu, desde las tarjetas / el banner */}
+          <div className="sin-barra hidden items-center gap-2 overflow-x-auto lg:flex" role="group" aria-label="Marca">
             <span className="mr-1 flex-none text-[15px] text-gris">Marca:</span>
             {MARCAS.map((m) => (
               <button
