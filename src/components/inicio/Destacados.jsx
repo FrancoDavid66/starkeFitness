@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import Titulo from '../Titulo';
 import TarjetaProducto from '../TarjetaProducto';
 import { IconoFlecha } from '../Iconos';
-import { DESTACADOS, porId } from '../../data/productos';
+import { DESTACADOS, MARCAS, porId } from '../../data/productos';
 import { Link } from '../../lib/router';
 
 export default function Destacados() {
@@ -14,7 +14,10 @@ export default function Destacados() {
       <div className="mb-[clamp(36px,5vw,64px)] flex flex-wrap items-end justify-between gap-7">
         <div>
           <Titulo id="sup-t">Suplementos, en el mismo gym</Titulo>
-          <p className="bajada">Proteínas, creatinas y pre-entrenos ENA. Lo pedís por WhatsApp y lo retirás cuando venís a entrenar.</p>
+          <p className="bajada">
+            Proteínas, creatinas y pre-entrenos de {MARCAS.slice(0, -1).join(', ')} y {MARCAS.at(-1)}. Consultás por WhatsApp y lo retirás cuando
+            venís a entrenar.
+          </p>
         </div>
         <div className="flex items-center gap-2.5">
           <button type="button" onClick={() => mover(-1)} aria-label="Ver anteriores" className="hidden h-[52px] w-[52px] place-items-center border-2 border-[#444] hover:border-white md:grid">

@@ -35,7 +35,7 @@ export const horarios = {
 export const mensajes = {
   claseGratis: 'Hola Starke! Quiero probar mi primera clase gratis.',
   hola: 'Hola Starke!',
-  pedidoIntro: 'Hola Starke! Quiero hacer este pedido del shop:',
+  pedidoIntro: 'Hola Starke! Quiero consultar precio y disponibilidad de estos productos:',
 };
 
 // Actividades: los wa.link son los del Linktree de Starke.
@@ -61,6 +61,14 @@ export const cintas = {
 };
 
 export const entregas = ['Retiro en el gym', 'Envío en Catán, a coordinar'];
+
+// =====================================================================
+//  SHOP
+// =====================================================================
+export const shop = {
+  mostrarPrecios: false, // el dueño pidió no mostrar precios: la gente consulta por WhatsApp
+  porPagina: 24, // productos que se ven antes del botón "Ver más"
+};
 
 // =====================================================================
 //  MAPA DE STARKE — todo se cambia acá (no usa Google ni pide apps)

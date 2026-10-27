@@ -12,9 +12,15 @@
 //  v        variantes: [sabor, tamaño, precio, foto]  (la primera es la que aparece elegida)
 //  p        precio cuando el producto no tiene variantes
 //
-//  PRECIOS: hoy son los precios de venta de ENA (EJEMPLO). Reemplazalos por los de Starke.
+//  PRECIOS: la web NO los muestra (lo pidió el dueño; se cambia en starke.js -> shop.mostrarPrecios).
+//  Los de ENA quedan cargados por si algún día se usan. Las otras marcas no tienen precio.
 //  Si Starke no tiene un sabor o tamaño, borrá esa línea de `v`.
+//
+//  Las otras marcas están en src/data/proveedores/ (star.js, gold.js, granger.js), mismo formato.
 // =====================================================================
+import { productosStar } from './proveedores/star.js';
+import { productosGold } from './proveedores/gold.js';
+import { productosGranger } from './proveedores/granger.js';
 
 export const CATEGORIAS = [
   ['todo', 'Todo'],
@@ -23,10 +29,13 @@ export const CATEGORIAS = [
   ['pre', 'Pre-entreno y aminoácidos'],
   ['colageno', 'Colágeno'],
   ['energia', 'Energía e hidratación'],
-  ['vitaminas', 'Vitaminas y minerales'],
+  ['vitaminas', 'Vitaminas y salud'],
   ['quemadores', 'Quemadores'],
+  ['alimentos', 'Alimentos y snacks proteicos'],
   ['shakers', 'Shakers'],
 ];
+
+export const MARCAS = ['ENA', 'Star Nutrition', 'Gold Nutrition', 'Granger'];
 
 export const OBJETIVOS = [
   ['musculo', 'Ganar músculo'],
@@ -44,7 +53,7 @@ const C = {
   blueberry: '#245a99', pinkLemonade: '#F28CB1', blueLemon: '#4FB3E8', berries: '#A32D5B', blackberry: '#4f1170',
 };
 
-export const productos = [
+const productosEna = [
   // ---------------------------------------------------------------- PROTEÍNAS
   {
     id: 'truemade-whey', ena: 'truemade-whey-protein', n: 'Truemade Whey Protein', c: 'proteinas', g: ['musculo', 'recupero'],
@@ -165,7 +174,7 @@ export const productos = [
     datos: ['400 g', '25 servicios'],
   },
   {
-    id: 'protein-bar', ena: 'protein-bar', n: 'Protein Bar', c: 'proteinas', g: ['musculo', 'rendimiento'],
+    id: 'protein-bar', ena: 'protein-bar', n: 'Protein Bar', c: 'alimentos', g: ['musculo', 'rendimiento'],
     img: 'files/ENAPROTEINBARCajaCTChocolate.webp?v=1779811383',
     d: 'Barra de proteína que combina carbohidratos y proteínas (2:1) para energía sostenida y mejor recuperación post entrenamiento. Aporta 12 g de proteína por barra de 46 g.',
     pills: ['12 g de proteína', 'Carbohidratos y proteínas 2:1', 'Lista para comer'],
@@ -478,8 +487,40 @@ export const productos = [
   },
 ];
 
+// Todas las marcas juntas (el orden es el del shop)
+const todos = [
+  ...productosEna.map((p) => ({ m: 'ENA', ...p })),
+  ...productosStar,
+  ...productosGold,
+  ...productosGranger,
+];
+
+// Orden del shop: por categoría (como en CATEGORIAS) y, adentro de cada una,
+// intercalando las marcas (ENA, Star, Gold, Granger, ENA, Star…) para que se vean todas.
+const ordenCat = Object.fromEntries(CATEGORIAS.map(([k], i) => [k, i]));
+const turno = new Map();
+const orden = new Map();
+for (const p of todos) {
+  const clave = `${p.c}|${p.m}`;
+  turno.set(clave, (turno.get(clave) ?? -1) + 1);
+  orden.set(p, [ordenCat[p.c] ?? 99, turno.get(clave), MARCAS.indexOf(p.m)]);
+}
+export const productos = [...todos].sort((a, b) => {
+  const [x, y] = [orden.get(a), orden.get(b)];
+  return x[0] - y[0] || x[1] - y[1] || x[2] - y[2];
+});
+
 // Los que aparecen en la portada (en este orden)
-export const DESTACADOS = ['creatina', 'truemade-whey', 'pre-war', 'colageno-sport', 'whey-100', 'electrolitos', 'protein-bar', 'ripped-x'];
+export const DESTACADOS = [
+  'creatina',
+  'gold-100-whey-protein-2lb',
+  'star-platinum-whey-protein-chocolate-x-2-lbs',
+  'pre-war',
+  'gold-creatine-monohydrate-300g',
+  'star-pump-v8-285-gr',
+  'granger-pancakes-proteicos-sabor-vainilla',
+  'colageno-sport',
+];
 
 // =====================================================================
 //  helpers (no hace falta tocarlos)
@@ -493,14 +534,15 @@ export const variantes = (p) => {
   if (!cacheVariantes.has(p.id)) {
     cacheVariantes.set(
       p.id,
-      p.v ? p.v.map(([s, t, precio, img]) => ({ s, t, precio, img })) : [{ s: null, t: null, precio: p.p, img: null }]
+      p.v ? p.v.map(([s, t, precio, img]) => ({ s, t, precio: precio ?? null, img })) : [{ s: null, t: null, precio: p.p ?? null, img: null }]
     );
   }
   return cacheVariantes.get(p.id);
 };
 export const varianteDe = (p, s, t) => variantes(p).find((v) => v.s === s && v.t === t) || null;
 export const variantePorDefecto = (p) => variantes(p)[0];
-export const precioDesde = (p) => Math.min(...variantes(p).map((v) => v.precio));
+export const tienePrecio = (p) => variantes(p).some((v) => v.precio != null);
+export const precioDesde = (p) => (tienePrecio(p) ? Math.min(...variantes(p).filter((v) => v.precio != null).map((v) => v.precio)) : null);
 export const variosPrecios = (p) => new Set(variantes(p).map((v) => v.precio)).size > 1;
 export const tieneOpciones = (p) => variantes(p).length > 1;
 export const colorSabor = (p, s) => p.sabores?.find(([n]) => n === s)?.[1] || null;

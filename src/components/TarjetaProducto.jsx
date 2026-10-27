@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import FotoProducto from './FotoProducto';
 import { usePedido } from '../context/Pedido';
 import { nombreCategoria, nombreObjetivo, precioDesde, tieneOpciones, variantePorDefecto, variosPrecios } from '../data/productos';
+import { shop } from '../data/starke';
 import { plata } from '../lib/util';
 
 // Puntito de color de un sabor (con borde si el color es muy claro)
@@ -16,6 +17,8 @@ export default function TarjetaProducto({ p, i = 0, ref }) {
   const [agregado, setAgregado] = useState(false);
   const opciones = tieneOpciones(p);
   const sabores = p.sabores || [];
+  const conPrecio = shop.mostrarPrecios && precioDesde(p) != null;
+  const queElige = (p.labelS || 'Sabor').toLowerCase();
 
   const alTocar = () => {
     if (opciones) return verProducto(p.id);
@@ -54,25 +57,33 @@ export default function TarjetaProducto({ p, i = 0, ref }) {
       </button>
 
       <div className="flex flex-1 flex-col gap-1.5 p-[11px] pb-[13px] sm:p-3.5 sm:pb-4">
-        <p className="text-sm text-gris">{nombreCategoria[p.c]}</p>
+        <p className="text-sm text-gris">
+          <span className="font-semibold text-white/80">{p.m}</span> · {nombreCategoria[p.c]}
+        </p>
         <h3 className="font-cond text-xl font-extrabold uppercase leading-none sm:text-2xl">{p.n}</h3>
 
         {sabores.length > 1 && (
-          <div className="mt-1 flex items-center gap-1.5" aria-label={`${sabores.length} sabores: ${sabores.map(([n]) => n).join(', ')}`}>
+          <div className="mt-1 flex items-center gap-1.5" aria-label={`${sabores.length} opciones: ${sabores.map(([n]) => n).join(', ')}`}>
             {sabores.slice(0, 6).map(([n, color]) => (
               <PuntoSabor key={n} color={color} />
             ))}
-            <span className="ml-0.5 text-[13px] text-gris">{sabores.length} sabores</span>
+            <span className="ml-0.5 text-[13px] text-gris">
+              {sabores.length} {queElige === 'sabor' ? 'sabores' : `${queElige}es`}
+            </span>
           </div>
         )}
 
         <div className="mt-auto flex flex-col items-stretch gap-2.5 pt-3 sm:flex-row sm:items-center sm:justify-between">
-          <span className="precio self-start text-xl sm:self-auto sm:text-[22px]">
-            <span>
-              {variosPrecios(p) && <small className="mr-1 text-sm font-bold">desde</small>}
-              {plata(precioDesde(p))}
+          {conPrecio ? (
+            <span className="precio self-start text-xl sm:self-auto sm:text-[22px]">
+              <span>
+                {variosPrecios(p) && <small className="mr-1 text-sm font-bold">desde</small>}
+                {plata(precioDesde(p))}
+              </span>
             </span>
-          </span>
+          ) : (
+            <span className="self-start font-cond text-[15px] font-bold uppercase tracking-[.05em] text-gris sm:self-auto">Consultá precio</span>
+          )}
           <button
             type="button"
             onClick={alTocar}

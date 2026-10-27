@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { fotoEna, fotoProducto } from '../lib/fotos';
 
-// Foto de la variante -> foto online de ENA -> foto principal -> nombre del producto
+// Foto de la variante -> foto online de la marca -> foto principal -> nombre del producto
 export default function FotoProducto({ p, ruta = null, className = '', eager = false, chica = false }) {
   const intentos = [fotoProducto(p, ruta), fotoEna(ruta || p.img), ruta ? fotoProducto(p) : null, ruta ? fotoEna(p.img) : null];
   const lista = [...new Set(intentos.filter(Boolean))];

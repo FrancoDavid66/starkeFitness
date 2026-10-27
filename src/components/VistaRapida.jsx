@@ -8,6 +8,7 @@ import { usePedido } from '../context/Pedido';
 import {
   colorSabor, datosDe, nombreCategoria, nombreObjetivo, porId, varianteDe, variantePorDefecto, variantes,
 } from '../data/productos';
+import { shop } from '../data/starke';
 import { bloquearScroll } from '../lib/scroll';
 import { plata } from '../lib/util';
 
@@ -74,6 +75,7 @@ function Ficha({ p, cerrar, agregar }) {
   const conMinis = new Set(minis.map((m) => m.img)).size > 1;
 
   const datos = datosDe(p, t);
+  const fuente = p.url || (p.ena ? `https://www.enasport.com/products/${p.ena}` : null);
 
   const comprar = (
     <div className="flex gap-2.5">
@@ -86,7 +88,7 @@ function Ficha({ p, cerrar, agregar }) {
           cerrar();
         }}
       >
-        Agregar · {plata(actual.precio * cant)}
+        {shop.mostrarPrecios && actual.precio != null ? `Agregar · ${plata(actual.precio * cant)}` : 'Agregar a la consulta'}
       </button>
     </div>
   );
@@ -164,7 +166,7 @@ function Ficha({ p, cerrar, agregar }) {
           {/* ---------- INFO ---------- */}
           <div className="flex flex-col gap-4 px-[18px] pb-8 pt-6 md:px-[30px] md:pb-[30px] md:pt-[34px]">
             <p className="text-sm text-gris">
-              {nombreCategoria[p.c]}
+              <span className="font-semibold text-white/80">{p.m}</span> · {nombreCategoria[p.c]}
               {p.g.length > 0 && ` · ${p.g.map((g) => nombreObjetivo[g]).join(', ')}`}
             </p>
             <h2 className="tit -mt-2 pr-12 text-[clamp(36px,4vw,54px)] leading-[.9]">{p.n}</h2>
@@ -207,7 +209,7 @@ function Ficha({ p, cerrar, agregar }) {
             {sabores.length > 0 && (
               <fieldset className="mt-1">
                 <legend className="mb-2.5 font-cond text-lg font-extrabold uppercase tracking-[.06em]">
-                  Elegí sabor <span className="font-semibold normal-case tracking-normal text-gris">· {s}</span>
+                  Elegí {(p.labelS || 'Sabor').toLowerCase()} <span className="font-semibold normal-case tracking-normal text-gris">· {s}</span>
                 </legend>
                 <div className="flex flex-wrap gap-2">
                   {sabores.map(([n, c]) => {
@@ -240,7 +242,7 @@ function Ficha({ p, cerrar, agregar }) {
                   {tamanos.map(([n, serv, dur]) => {
                     const activo = n === t;
                     const v = varianteDe(p, s, n);
-                    const precio = (v || vs.find((y) => y.t === n)).precio;
+                    const precio = shop.mostrarPrecios ? (v || vs.find((y) => y.t === n)).precio : null;
                     return (
                       <button
                         key={n}
@@ -261,7 +263,7 @@ function Ficha({ p, cerrar, agregar }) {
                             {!v && !activo && ' · otro sabor'}
                           </span>
                         </span>
-                        <span className="font-cond text-xl font-extrabold">{plata(precio)}</span>
+                        <span className="font-cond text-xl font-extrabold">{precio != null && plata(precio)}</span>
                       </button>
                     );
                   })}
@@ -297,7 +299,18 @@ function Ficha({ p, cerrar, agregar }) {
             )}
 
             <div className="mt-auto hidden pt-2 md:block">{comprar}</div>
-            <p className="text-[13px] text-[#777]">Foto e información: ENA Sport.</p>
+            <p className="text-[13px] text-[#777]">
+              Foto e información:{' '}
+              {fuente ? (
+                <a href={fuente} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">
+                  {p.m}
+                </a>
+              ) : (
+                p.m
+              )}
+              .
+              {!shop.mostrarPrecios && ' Precio y stock: consultalo por WhatsApp.'}
+            </p>
           </div>
         </div>
         </div>

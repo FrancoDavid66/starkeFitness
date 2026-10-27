@@ -6,14 +6,14 @@ import { Digito } from './Led';
 import { IconoWhatsApp } from './Iconos';
 import { fotoLinea, precioLinea, usePedido, variante } from '../context/Pedido';
 import { nombreCategoria, porId } from '../data/productos';
-import { entregas } from '../data/starke';
+import { entregas, shop } from '../data/starke';
 import { Link } from '../lib/router';
 import { bloquearScroll } from '../lib/scroll';
 import { plata } from '../lib/util';
 
 // Panel del pedido: a la derecha en compu, desde abajo en el celu
 export default function PedidoPanel() {
-  const { abierto, cerrar, items, total, cambiar, quitar, enviar } = usePedido();
+  const { abierto, cerrar, items, cantidad, total, cambiar, quitar, enviar } = usePedido();
   const [nombre, setNombre] = useState('');
   const [entrega, setEntrega] = useState(entregas[0]);
   const movil = typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
@@ -89,11 +89,13 @@ export default function PedidoPanel() {
                       </div>
                       <div className="min-w-0">
                         <h4 className="font-cond text-[19px] font-extrabold uppercase leading-none">{p.n}</h4>
-                        <p className="mb-1.5 mt-[3px] text-[13px] text-gris">{variante(l) || nombreCategoria[p.c]}</p>
+                        <p className="mb-1.5 mt-[3px] text-[13px] text-gris">{[p.m, variante(l) || nombreCategoria[p.c]].filter(Boolean).join(' · ')}</p>
                         <Cantidad chico valor={l.q} onCambiar={(d) => cambiar(l.key, d)} />
                       </div>
                       <div className="text-right">
-                        <div className="font-cond text-xl font-extrabold">{plata(precioLinea(l) * l.q)}</div>
+                        {shop.mostrarPrecios && precioLinea(l) != null && (
+                          <div className="font-cond text-xl font-extrabold">{plata(precioLinea(l) * l.q)}</div>
+                        )}
                         <button type="button" onClick={() => quitar(l.key)} className="mt-1.5 text-[13px] text-gris underline hover:text-white">
                           Quitar
                         </button>
@@ -107,11 +109,12 @@ export default function PedidoPanel() {
             {items.length > 0 && (
               <div className="grid gap-3.5 border-t-2 border-linea px-[22px] pb-[22px] pt-[18px]">
                 <div className="flex items-baseline justify-between font-cond text-[22px] font-extrabold uppercase">
-                  <span>Total</span>
-                  <motion.strong key={total} initial={{ y: -8, opacity: 0.4 }} animate={{ y: 0, opacity: 1 }} className="text-4xl font-black italic">
-                    {plata(total)}
+                  <span>{total != null ? 'Total' : 'Productos'}</span>
+                  <motion.strong key={total ?? cantidad} initial={{ y: -8, opacity: 0.4 }} animate={{ y: 0, opacity: 1 }} className="text-4xl font-black italic">
+                    {total != null ? plata(total) : cantidad}
                   </motion.strong>
                 </div>
+                {total == null && <p className="-mt-2 text-sm text-gris">Te pasamos precio y disponibilidad por WhatsApp.</p>}
 
                 <fieldset className="grid gap-2">
                   <legend className="mb-1.5 text-sm text-gris">Entrega</legend>
@@ -132,16 +135,16 @@ export default function PedidoPanel() {
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
                     autoComplete="name"
-                    placeholder="Para saber a quién preparar el pedido"
+                    placeholder="Para saber a quién responderle"
                     className="min-h-[48px] border-2 border-[#333] bg-negro p-3 text-base text-white outline-none focus:border-white"
                   />
                 </label>
 
                 <button type="button" className="btn btn-rojo w-full" onClick={() => enviar({ nombre: nombre.trim(), entrega })}>
                   <IconoWhatsApp />
-                  Enviar pedido por WhatsApp
+                  {shop.mostrarPrecios ? 'Enviar pedido por WhatsApp' : 'Consultar por WhatsApp'}
                 </button>
-                <p className="text-center text-[13px] text-[#777]">Se abre WhatsApp con el pedido escrito. Lo revisás y lo mandás.</p>
+                <p className="text-center text-[13px] text-[#777]">Se abre WhatsApp con la consulta escrita. La revisás y la mandás.</p>
               </div>
             )}
           </motion.aside>

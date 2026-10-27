@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { porId, precioDesde, varianteDe } from '../data/productos';
-import { mensajes } from '../data/starke';
+import { mensajes, shop } from '../data/starke';
 import { fotoProducto } from '../lib/fotos';
 import { guardarLocal, leerLocal, linkWhatsApp, plata } from '../lib/util';
 
@@ -84,21 +84,24 @@ export function PedidoProvider({ children }) {
   const quitar = useCallback((key) => setItems((prev) => prev.filter((l) => l.key !== key)), []);
 
   const cantidad = items.reduce((a, l) => a + l.q, 0);
-  const total = items.reduce((a, l) => a + precioLinea(l) * l.q, 0);
+  // total solo si se muestran precios y todos los productos del pedido tienen precio
+  const total = shop.mostrarPrecios && items.every((l) => precioLinea(l) != null) ? items.reduce((a, l) => a + precioLinea(l) * l.q, 0) : null;
 
   const enviar = useCallback(
     ({ nombre, entrega }) => {
       if (!items.length) return;
       const lineas = items.map((l) => {
-        const v = variante(l);
-        return `• ${l.q} x ${porId[l.id].n}${v ? ` (${v})` : ''}: ${plata(precioLinea(l) * l.q)}`;
+        const p = porId[l.id];
+        const detalle = [p.m, variante(l)].filter(Boolean).join(' · ');
+        const precio = shop.mostrarPrecios && precioLinea(l) != null ? `: ${plata(precioLinea(l) * l.q)}` : '';
+        return `• ${l.q} x ${p.n}${detalle ? ` (${detalle})` : ''}${precio}`;
       });
       const texto = [
         mensajes.pedidoIntro,
         '',
         ...lineas,
         '',
-        `Total: ${plata(total)}`,
+        total != null ? `Total: ${plata(total)}` : null,
         `Entrega: ${entrega}`,
         nombre ? `Nombre: ${nombre}` : null,
       ]

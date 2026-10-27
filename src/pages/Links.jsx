@@ -89,7 +89,7 @@ export default function Links() {
           <Link to="/shop" className="lk-btn">
             <span>
               Productos y suplementos
-              <Sub>Pedís por WhatsApp y retirás en el gym</Sub>
+              <Sub>ENA, Star, Gold y Granger · consultá por WhatsApp</Sub>
             </span>
             <IconoBolsa className="flex-none" />
           </Link>
