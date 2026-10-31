@@ -12,6 +12,7 @@ const ITEMS = [
   { l: 'Inicio', to: '/' },
   { l: 'Actividades', to: '/', seccion: 'actividades' },
   { l: 'Shop', to: '/shop' },
+  { l: 'Inscribite', to: '/ingreso' },
   { l: 'Links', to: '/links' },
 ];
 

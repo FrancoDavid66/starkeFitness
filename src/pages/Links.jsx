@@ -2,7 +2,7 @@ import { Suspense, lazy, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Logo from '../components/Logo';
 import { Punto } from '../components/Tablero';
-import { IconoBolsa, IconoInstagram, IconoPin, IconoReloj, IconoWeb, IconoWhatsApp } from '../components/Iconos';
+import { IconoBolsa, IconoFlecha, IconoInstagram, IconoPin, IconoReloj, IconoWeb, IconoWhatsApp } from '../components/Iconos';
 import { actividades, horarios, mensajes, negocio } from '../data/starke';
 import { useReloj } from '../lib/horario';
 import { Link } from '../lib/router';
@@ -73,7 +73,18 @@ export default function Links() {
           </a>
         </motion.div>
 
-        {/* 2. La web */}
+        {/* 2. Inscripción */}
+        <motion.div variants={item}>
+          <Link to="/ingreso" className="lk-btn">
+            <span>
+              Inscribite a Starke
+              <Sub>Completá tu ficha de ingreso en 3 minutos</Sub>
+            </span>
+            <IconoFlecha className="flex-none" />
+          </Link>
+        </motion.div>
+
+        {/* La web */}
         <motion.div variants={item}>
           <Link to="/" className="lk-btn">
             <span>

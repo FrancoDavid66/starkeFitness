@@ -6,7 +6,10 @@ import { wait } from './util';
 // Páginas: portada, shop, links (la de Instagram) y mapa.
 // En Hostinger usa rutas limpias (/shop, /links, /mapa) gracias al .htaccess.
 // Abierto con doble clic (build:single) usa #/shop, #/links y #/mapa.
-export const RUTAS = ['/', '/shop', '/links', '/mapa'];
+export const RUTAS = ['/', '/shop', '/links', '/mapa', '/ingreso'];
+
+// Otros nombres para la misma página
+const ALIAS = { '/inscripcion': '/ingreso', '/inscribite': '/ingreso', '/empezar': '/ingreso' };
 
 // Atajos que abren la portada en una sección (para los links del perfil)
 const ATAJOS = {
@@ -19,6 +22,7 @@ const TITULOS = {
   '/shop': 'Shop de suplementos · Starke Fitness',
   '/links': 'Links · Starke Fitness',
   '/mapa': 'Cómo llegar · Starke Fitness',
+  '/ingreso': 'Formulario de ingreso · Starke Fitness',
 };
 
 const usaHash = () => window.location.protocol === 'file:';
@@ -29,6 +33,7 @@ const rutaCruda = () =>
 const leerRuta = () => {
   const r = rutaCruda();
   if (ATAJOS[r]) return ATAJOS[r].ruta;
+  if (ALIAS[r]) return ALIAS[r];
   return RUTAS.includes(r) ? r : '/';
 };
 

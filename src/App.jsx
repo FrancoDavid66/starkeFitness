@@ -16,6 +16,7 @@ import Inicio from './pages/Inicio';
 import Shop from './pages/Shop';
 import Links from './pages/Links';
 import Mapa from './pages/Mapa';
+import Ingreso from './pages/Ingreso';
 
 const App = () => {
   const { ruta, cortina } = useRouter();
@@ -42,8 +43,8 @@ const App = () => {
     };
   }, []);
 
-  // /links y /mapa son páginas sueltas, sin menú ni pie
-  const conMarco = ruta !== '/links' && ruta !== '/mapa';
+  // /links, /mapa e /ingreso son páginas sueltas, sin menú ni pie
+  const conMarco = !['/links', '/mapa', '/ingreso'].includes(ruta);
 
   return (
     <>
@@ -61,6 +62,7 @@ const App = () => {
         {ruta === '/shop' && <Shop />}
         {ruta === '/links' && <Links />}
         {ruta === '/mapa' && <Mapa />}
+        {ruta === '/ingreso' && <Ingreso />}
       </main>
 
       {conMarco && <Footer />}

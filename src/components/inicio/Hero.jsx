@@ -46,6 +46,9 @@ export default function Hero({ listo }) {
             <a className="btn btn-rojo" href={linkWhatsApp(mensajes.claseGratis)} target="_blank" rel="noopener">
               Probá tu primera clase gratis
             </a>
+            <Link to="/ingreso" className="btn btn-borde">
+              Inscribite
+            </Link>
             <Link to="/shop" className="btn btn-borde">
               Ver suplementos
             </Link>

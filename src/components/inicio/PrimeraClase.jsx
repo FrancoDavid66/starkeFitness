@@ -4,6 +4,7 @@ import Titulo from '../Titulo';
 import { Digito } from '../Led';
 import { mensajes, pasos } from '../../data/starke';
 import { linkWhatsApp } from '../../lib/util';
+import { Link } from '../../lib/router';
 
 export default function PrimeraClase() {
   return (
@@ -16,9 +17,14 @@ export default function PrimeraClase() {
           <Paso key={p.t} n={i + 1} {...p} i={i} />
         ))}
       </ol>
-      <a className="btn btn-negro" href={linkWhatsApp(mensajes.claseGratis)} target="_blank" rel="noopener">
-        Reservar mi clase gratis
-      </a>
+      <div className="flex flex-wrap gap-3.5">
+        <a className="btn btn-negro" href={linkWhatsApp(mensajes.claseGratis)} target="_blank" rel="noopener">
+          Reservar mi clase gratis
+        </a>
+        <Link to="/ingreso" className="btn border-negro text-negro hover:bg-negro hover:text-white">
+          Ya quiero empezar: inscribirme
+        </Link>
+      </div>
     </section>
   );
 }
