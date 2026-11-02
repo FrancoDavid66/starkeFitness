@@ -140,30 +140,13 @@ html.lenis body {
   .act:focus-within::before {
     transform: scaleX(1);
   }
-
-  /* Botón de la página de links: barrido blanco */
-  .lk-btn {
-    @apply relative isolate mb-3 flex min-h-[62px] items-center justify-between gap-3.5 overflow-hidden border-2 border-white px-[22px] py-2.5 text-left font-cond text-[23px] font-extrabold uppercase italic leading-[1.02] no-underline transition-colors duration-200 hover:text-negro;
-  }
-  .lk-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0 -20px;
-    background: #fff;
-    transform: translateX(-101%) skewX(-12deg);
-    transition: transform 0.35s cubic-bezier(0.7, 0, 0.25, 1);
-    z-index: -1;
-  }
-  .lk-btn:hover::before {
-    transform: translateX(0) skewX(-12deg);
-  }
 }
 
 /* ============================================================
    BOTÓN DESTACADO (todos los "Inscribite")
    Borde rojo con una luz que da vueltas, un brillo que lo cruza
    cada tanto, un "latido" y la flecha que empuja.
-   Uso: agregar la clase "destacado" al botón (.btn o .lk-btn),
+   Uso: agregar la clase "destacado" al botón (.btn o .lt-btn),
    y adentro <span class="destacado-brillo"> y la flecha con
    "destacado-flecha". "destacado-negro" = versión para fondo rojo.
    ============================================================ */
@@ -179,10 +162,7 @@ html.lenis body {
   border-width: 0;
   animation: destacado-latido 1.8s ease-out infinite;
 }
-/* sin borde de 2px: se compensa con padding para que mida igual que los otros botones */
-.lk-btn.destacado {
-  padding: 12px 24px;
-}
+/* sin borde: se compensa con padding para que mida igual que los otros botones */
 .btn.destacado {
   padding-left: 28px;
   padding-right: 28px;
@@ -193,6 +173,7 @@ html.lenis body {
   position: absolute;
   inset: 0;
   padding: 2px;
+  border-radius: inherit; /* sigue las puntas redondeadas del botón (en /links) */
   background: conic-gradient(from var(--giro), #e3131b 0deg 230deg, #ff6b70 290deg, #fff 335deg, #ff6b70 350deg, #e3131b 360deg);
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
@@ -293,6 +274,468 @@ html.lenis body {
   }
   .destacado {
     animation: destacado-encendido 1.6s ease-in-out infinite;
+  }
+}
+
+/* ============================================================
+   LINKS (/links) — estilo Linktree con la identidad de Starke
+   Portada roja, foto de perfil con anillo que gira, botones
+   redondeados con miniatura a la izquierda y texto centrado.
+   ============================================================ */
+.lt-fondo {
+  background:
+    radial-gradient(90% 45% at 50% 0%, rgba(227, 19, 27, 0.2), transparent 70%),
+    #000;
+}
+
+/* Portada */
+.lt-portada {
+  position: relative;
+  overflow: hidden;
+  height: 124px;
+  margin: 0 -16px;
+  background: radial-gradient(130% 160% at 0% 0%, #ff2a1f 0%, #e3131b 42%, #7d070c 100%);
+}
+@media (min-width: 520px) {
+  .lt-portada {
+    margin: 16px 0 0;
+    border-radius: 24px;
+  }
+}
+.lt-portada-texto {
+  position: absolute;
+  left: 50%;
+  top: -16px;
+  transform: translateX(-50%) skewX(-8deg);
+  font-family: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: 122px;
+  line-height: 1;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.24);
+}
+/* la cinta blanca que corre (frases de cintas.blanca en starke.js) */
+.lt-cinta {
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  top: 44px;
+  transform: rotate(-5deg);
+  overflow: hidden;
+  padding: 7px 0 6px;
+  background: #fff;
+  color: #000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.lt-cinta > div {
+  display: flex;
+  width: max-content;
+  animation: lt-cinta 24s linear infinite;
+}
+.lt-cinta span {
+  padding: 0 12px;
+  font-family: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.lt-cinta span::after {
+  content: '●';
+  margin-left: 24px;
+  font-size: 9px;
+  vertical-align: 3px;
+  color: #e3131b;
+}
+@keyframes lt-cinta {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.lt-compartir {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  transition:
+    background-color 0.2s,
+    transform 0.2s;
+}
+.lt-compartir:hover {
+  background: #000;
+  transform: scale(1.06);
+}
+
+/* Foto de perfil con anillo que gira (como las historias de Instagram) */
+.lt-avatar {
+  width: 104px;
+  height: 104px;
+  padding: 4px;
+  border-radius: 9999px;
+  background: conic-gradient(from var(--giro), #e3131b 0deg 200deg, #ff6b70 260deg, #fff 320deg, #ff6b70 345deg, #e3131b 360deg);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6);
+  animation: destacado-giro 3.2s linear infinite;
+}
+.lt-avatar > svg {
+  border: 4px solid #000;
+  border-radius: 9999px;
+  background: #000;
+}
+
+/* Redes (Instagram, WhatsApp, mapa) */
+.lt-red {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #2e2e2e;
+  border-radius: 9999px;
+  background: #111;
+  color: #fff;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+}
+.lt-red:hover {
+  background: #e3131b;
+  border-color: #e3131b;
+  transform: translateY(-2px);
+}
+
+/* Título de cada bloque */
+.lt-titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+.lt-titulo::before,
+.lt-titulo::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #262626;
+}
+
+/* Tarjeta grande: primera clase gratis */
+.lt-destacada {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 152px;
+  padding: 16px 16px 16px 18px;
+  border-radius: 22px;
+  background: linear-gradient(140deg, #ff2a1f 0%, #e3131b 45%, #a30c12 100%);
+  box-shadow: 0 22px 44px -22px rgba(227, 19, 27, 0.8);
+  transition: transform 0.3s cubic-bezier(0.7, 0, 0.25, 1);
+}
+.lt-destacada:hover {
+  transform: translateY(-3px);
+}
+.lt-destacada-fondo {
+  position: absolute;
+  right: -14px;
+  top: -26px;
+  z-index: -1;
+  font-family: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: 118px;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.2);
+  transform: rotate(-6deg);
+}
+.lt-destacada-wa {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  background: #fff;
+  color: #1fb855;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s cubic-bezier(0.7, 0, 0.25, 1);
+}
+.lt-destacada:hover .lt-destacada-wa {
+  transform: scale(1.08) rotate(-8deg);
+}
+
+/* Botones: miniatura | texto centrado | flecha */
+.lt-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  column-gap: 10px;
+  width: 100%;
+  min-height: 68px;
+  margin-bottom: 10px;
+  padding: 9px;
+  border: 1px solid #2a2a2a;
+  border-radius: 18px;
+  background: #111;
+  color: #fff;
+  text-align: center;
+  transition:
+    transform 0.25s cubic-bezier(0.7, 0, 0.25, 1),
+    border-color 0.2s,
+    background-color 0.2s;
+}
+.lt-btn:hover {
+  transform: translateY(-2px);
+  border-color: #e3131b;
+  background: #161616;
+}
+.lt-btn.lt-abierto {
+  border-color: #e3131b;
+}
+.lt-btn.destacado {
+  padding: 10px; /* el destacado no tiene borde: se compensa */
+}
+.lt-btn-rojo {
+  background: linear-gradient(90deg, rgba(227, 19, 27, 0.24), #111 65%);
+}
+.lt-mini {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 13px;
+}
+.lt-texto {
+  font-family: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: 21px;
+  line-height: 1;
+}
+.lt-texto small {
+  display: block;
+  margin-top: 5px;
+  font-family: Barlow, system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  font-style: normal;
+  text-transform: none;
+  line-height: 1.25;
+  color: #9a9a9a;
+}
+.lt-ir,
+.lt-mas {
+  justify-self: center;
+  opacity: 0.5;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+.lt-btn:hover .lt-ir {
+  opacity: 1;
+  transform: translateX(3px);
+}
+.lt-btn:hover .lt-mas,
+.lt-abierto .lt-mas {
+  opacity: 1;
+}
+/* logos de las marcas abajo del botón de productos */
+.lt-marcas {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 10px;
+  margin: 9px -9px -9px;
+  padding: 11px 14px;
+  border-top: 1px solid #222;
+  background: #0b0b0b;
+}
+.lt-marcas img {
+  width: auto;
+  max-width: 22%;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+/* Suplementos: tarjetitas con foto que se deslizan de costado */
+.lt-riel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 128px;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 16px 8px;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 16px;
+  scrollbar-width: none;
+}
+.lt-riel::-webkit-scrollbar {
+  display: none;
+}
+.lt-prod {
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  background: #111;
+  text-align: left;
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+.lt-prod:hover {
+  border-color: #e3131b;
+  transform: translateY(-2px);
+}
+.lt-prod-foto {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #f1f1ef;
+}
+.lt-prod-foto img {
+  transition: transform 0.5s cubic-bezier(0.7, 0, 0.25, 1);
+}
+.lt-prod:hover .lt-prod-foto img {
+  transform: scale(1.06) rotate(-2deg);
+}
+.lt-prod-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 10px 11px;
+}
+.lt-prod-txt small {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ff4d52;
+}
+.lt-prod-txt > span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+/* la última: "+141 productos más" */
+.lt-prod-mas {
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-color: #e3131b;
+  background: linear-gradient(160deg, #ff2a1f, #b30d14);
+  text-align: center;
+}
+.lt-prod-mas:hover {
+  border-color: #fff;
+}
+.lt-prod-mas b {
+  font-family: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 44px;
+  line-height: 0.9;
+}
+.lt-prod-mas span {
+  font-family: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: 17px;
+  line-height: 1;
+}
+
+/* Lo que se despliega (mapa y horarios) */
+.lt-panel {
+  overflow: hidden;
+  margin: -2px 0 12px;
+  border: 1px solid #2a2a2a;
+  border-radius: 18px;
+  background: #0b0b0b;
+}
+
+/* Actividades */
+.lt-act {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 72px;
+  padding: 10px;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  background: #111;
+  text-align: center;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    transform 0.2s;
+}
+.lt-act > span {
+  font-family: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: 20px;
+  line-height: 1;
+}
+.lt-act small {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a8a8a;
+  transition: color 0.2s;
+}
+.lt-act:hover {
+  border-color: #e3131b;
+  background: #161616;
+  transform: translateY(-2px);
+}
+.lt-act:hover small {
+  color: #2bd65a;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lt-avatar,
+  .lt-cinta > div {
+    animation: none;
   }
 }
 

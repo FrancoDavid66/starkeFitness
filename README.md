@@ -6,7 +6,7 @@ Tres páginas en una sola web:
 
 - **`/`** portada del gym (hero con el reloj LED, actividades, primera clase gratis, suplementos destacados, horarios)
 - **`/#/shop`** shop de suplementos (ENA, Star Nutrition, Gold Nutrition y Granger · 149 productos) sin precios: la gente arma la consulta y la manda por WhatsApp
-- **`/#/links`** página para la bio de Instagram (reemplaza el Linktree)
+- **`/#/links`** página para la bio de Instagram, estilo Linktree (reemplaza el Linktree): clase gratis, inscripción, suplementos con foto, mapa, horarios y actividades
 
 ## Arrancar
 
@@ -22,7 +22,7 @@ La web usa **direcciones con `#`** (hash router): así cada página abre bien en
 
 | Link | Abre |
 |---|---|
-| `TU-DOMINIO.com.ar/#/links` | Menú de links (clase gratis, inscripción, web, productos, mapa, horarios, actividades) |
+| `TU-DOMINIO.com.ar/#/links` | Menú de links (clase gratis, inscripción, suplementos, mapa, horarios, web, actividades) |
 | `TU-DOMINIO.com.ar/` | La web completa (con la intro 3, 2, 1) |
 | `TU-DOMINIO.com.ar/#/ingreso` | Formulario de ingreso (también `#/inscripcion`, `#/inscribite` y `#/empezar`) |
 | `TU-DOMINIO.com.ar/#/shop` | Productos y suplementos |
@@ -38,7 +38,7 @@ Entrando por cualquier link que no sea la portada, la intro no aparece (va direc
 
 - **`src/data/starke.js`** → WhatsApp, Instagram, dirección, mapa, horarios, actividades (con sus wa.link), pasos de la clase gratis, cintas, formas de entrega, crédito del footer.
 - **Precios** → `shop.mostrarPrecios` en `src/data/starke.js`. Hoy está en `false` (lo pidió el dueño): no se ve ningún precio, las tarjetas dicen "Consultá precio" y el WhatsApp sale como "Quiero consultar precio y disponibilidad de…". Si algún día quieren mostrarlos, se pone en `true` y se cargan los precios en las variantes. `shop.porPagina` = cuántos productos se ven antes del botón "Ver más".
-- **`src/data/productos.js`** → catálogo de ENA (datos reales de ENA), las categorías, las marcas y `DESTACADOS` (los que salen en la portada). Formato: descripción, beneficios, modo de uso, sabores con su color, tamaños con servicios y duración, y las variantes `[sabor, tamaño, precio, foto]`. Si Starke no tiene un sabor o tamaño, se borra esa línea de `v`.
+- **`src/data/productos.js`** → catálogo de ENA (datos reales de ENA), las categorías, las marcas y `DESTACADOS` (los que salen en la portada y en las fotos de suplementos de `/links`). Formato: descripción, beneficios, modo de uso, sabores con su color, tamaños con servicios y duración, y las variantes `[sabor, tamaño, precio, foto]`. Si Starke no tiene un sabor o tamaño, se borra esa línea de `v`.
 - **`src/data/proveedores/`** → `star.js` (51), `gold.js` (31) y `granger.js` (30): productos sacados de starnutrition.com.ar, goldnutrition.com.ar y grangernutricion.com (nombre, foto por sabor, descripción, modo de uso, presentación). Mismo formato que ENA, sin precios. Para sacar un producto que Starke no trae: se borra su bloque `{ … }`.
 - **Marcas (arriba del shop)** → `src/data/marcas.js`: logo de cada marca (en `src/assets/marcas/`, sacados de las webs oficiales y pasados a blanco), tamaño del logo (`esc`) y el producto que sale de foto en su tarjeta. Sin marca elegida se ven 4 tarjetas (carrusel en el celu, 2 por fila en tablet, 4 en compu); al tocar una se convierte en un banner rojo con el logo grande, la cantidad de productos, de qué tiene más y botones para cambiar de marca o ver todas. En compu también se cambia desde la barra fija; en el celu esa fila se esconde para que la barra ocupe menos.
 - **Orden del shop** → por categoría y, adentro de cada una, intercalando marcas (así en la primera página se ven las 4). Filtros: buscador (por nombre, marca, categoría o sabor), marca, categoría y objetivo.
@@ -64,6 +64,7 @@ Entrando por cualquier link que no sea la portada, la intro no aparece (va direc
 - Mapa de Starke (portada, /mapa y "Cómo llegar" en /links): pin con el logo que flota y late, radio de 5 cuadras, estado abierto/cerrado, cambio de estilo (oscuro / claro / calles), y "Cómo llegar" que dibuja el camino desde donde estás con tiempo, distancia, modo (auto / caminando / bici) e indicaciones paso a paso. En el celu (salvo en /mapa) el mapa se mueve recién después de tocarlo.
 - Pedido / consulta: panel lateral (abajo en el celu), líneas que entran y salen, contador de productos que se actualiza (o el total, si se muestran precios). Shop con "Ver más" y barrita de progreso.
 - Navbar que se esconde al bajar, menú del celu tipo telón rojo, scroll suave con Lenis.
+- `/links` (estilo Linktree, estilos en la sección "LINKS" de `src/index.css`): portada roja con una cinta que corre, logo con anillo que gira (como las historias de Instagram), estado abierto/cerrado en vivo, botón para compartir, tarjeta grande de la clase gratis y suplementos con foto que se deslizan de costado. Al tocar un suplemento se abre su ficha ahí mismo y se puede armar la consulta (aparece el botón "Ver pedido", igual que en el shop).
 - Botones "Inscribite" (portada, primera clase gratis y /links): clase `destacado` en `src/index.css`. Borde con una luz que gira, brillo que lo cruza, latido con un anillo que se expande y flecha que empuja. Con "reducir movimiento" activado no se mueven: titilan en el lugar.
 - Respeta "reducir movimiento" del sistema (`MotionConfig reducedMotion="user"`).
 

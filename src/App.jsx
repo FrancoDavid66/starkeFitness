@@ -67,7 +67,8 @@ const App = () => {
 
       {conMarco && <Footer />}
 
-      {ruta === '/shop' && <BotonPedido />}
+      {/* botón "Ver pedido" (aparece solo si agregaron algo): en el shop y en /links */}
+      {(ruta === '/shop' || ruta === '/links') && <BotonPedido />}
       <VistaRapida />
       <PedidoPanel />
     </>
