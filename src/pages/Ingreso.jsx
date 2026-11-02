@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Logo from '../components/Logo';
-import { IconoFlecha, IconoWhatsApp } from '../components/Iconos';
+import { IconoFlecha, IconoPin, IconoWhatsApp } from '../components/Iconos';
 import { ingreso as F } from '../data/ingreso';
 import { negocio } from '../data/starke';
 import { Link } from '../lib/router';
@@ -14,12 +14,14 @@ import { plata } from '../lib/util';
 const golpe = [0.7, 0, 0.25, 1];
 const CLAVE = 'starke-ingreso-v1';
 
-const ETAPAS = ['Elección del plan', 'Tu objetivo', 'Salud y antecedentes', 'Reglamento interno', 'Tus datos'];
+const ETAPAS = ['Elección del plan', 'Objetivo y actividad', 'Salud y antecedentes', 'Reglamento interno', 'Tus datos'];
 
 const VACIO = {
   plan: null,
   acuerdo: null, // 'si' | 'no'
   objetivos: [],
+  actividad: null, // 'si' | 'no'
+  actividadCual: '',
   salud: {},
   detalle: '',
   reglamento: null, // 'si' | 'no'
@@ -59,6 +61,9 @@ const edad = (iso) => {
   return e;
 };
 const primerNombre = (n) => n.trim().split(/\s+/)[0] || '';
+// Reemplaza {nombre} y {direccion} en los textos de ingreso.js
+const conDatos = (t, r) =>
+  (t || '').replace(/\{nombre\}/g, primerNombre(r.nombre) || 'campeón').replace(/\{direccion\}/g, negocio.direccion || negocio.zona);
 const numeroDueno = () => F.whatsapp || negocio.whatsapp;
 const linkWa = (texto) => `https://wa.me/${numeroDueno()}?text=${encodeURIComponent(texto)}`;
 
@@ -69,6 +74,7 @@ const armarPasos = (r) => [
   { e: 0, k: 'plan' },
   { e: 0, k: 'acuerdo' },
   { e: 1, k: 'objetivos' },
+  { e: 1, k: 'actividad' },
   ...F.salud.map((q, n) => ({ e: 2, k: 'salud', q, n })),
   ...(hayAlerta(r) ? [{ e: 2, k: 'detalle' }] : []),
   { e: 3, k: 'reglamento' },
@@ -85,6 +91,10 @@ const falta = (p, r) => {
       return r.acuerdo === 'si' ? null : r.acuerdo === 'no' ? 'bloqueado' : 'Elegí una opción.';
     case 'objetivos':
       return r.objetivos.length ? null : 'Elegí al menos un objetivo.';
+    case 'actividad':
+      if (!r.actividad) return 'Elegí una opción.';
+      if (r.actividad === 'si' && r.actividadCual.trim().length < 2) return 'Contanos qué actividad estás haciendo.';
+      return null;
     case 'salud':
       return r.salud[p.q.id] ? null : 'Elegí una opción.';
     case 'detalle':
@@ -127,6 +137,8 @@ const armarMensaje = (r) => {
     '🎯 *Objetivos:*',
     ...r.objetivos.map((o) => `• ${o}`),
     '',
+    `🏃 *Actividad actual:* ${r.actividad === 'si' ? `Sí — ${r.actividadCual.trim()}` : 'No'}`,
+    '',
     `🩺 *Salud:*${alerta ? ' ⚠️ REVISAR' : ' sin antecedentes marcados'}`,
     ...F.salud.map((q) => `• ${q.corto}: ${r.salud[q.id] || '-'}`),
     ...(alerta && r.detalle.trim() ? [`📌 *Detalle:* ${r.detalle.trim()}`] : []),
@@ -145,6 +157,7 @@ export default function Ingreso() {
   const [i, setI] = useState(guardado?.i || 0);
   const [dir, setDir] = useState(1);
   const [aviso, setAviso] = useState(null);
+  const [previo, setPrevio] = useState(false); // cartel "Nos vemos en…" antes de abrir WhatsApp
   const avanzarAuto = useRef(null);
 
   const pasos = useMemo(() => armarPasos(r), [r]);
@@ -173,7 +186,7 @@ export default function Ingreso() {
       if (f !== 'bloqueado') setAviso(f);
       return;
     }
-    if (ultimo) return enviar(rActual);
+    if (ultimo) return setPrevio(true); // primero el cartel, después WhatsApp
     ir(i + 1);
   };
 
@@ -191,6 +204,7 @@ export default function Ingreso() {
 
   const enviar = (rActual = r) => {
     window.open(linkWa(armarMensaje(rActual)), '_blank', 'noopener');
+    setPrevio(false);
     setFase('fin');
     irArriba(true);
   };
@@ -292,6 +306,8 @@ export default function Ingreso() {
 
         {fase === 'fin' && <Fin key="fin" r={r} onReenviar={() => window.open(linkWa(armarMensaje(r)), '_blank', 'noopener')} onOtra={reiniciar} />}
       </AnimatePresence>
+
+      <AnimatePresence>{previo && fase === 'wizard' && <AntesDeEnviar key="previo" r={r} onEnviar={() => enviar()} onCerrar={() => setPrevio(false)} />}</AnimatePresence>
     </section>
   );
 }
@@ -506,6 +522,35 @@ function Paso({ paso, r, poner, elegirYSeguir, siguiente }) {
       );
     }
 
+    case 'actividad':
+      return (
+        <>
+          <Pregunta sub={F.actividad.sub}>{F.actividad.pregunta}</Pregunta>
+          <div className="mt-6 grid gap-3" role="radiogroup">
+            <Opcion activa={r.actividad === 'si'} onClick={() => poner({ actividad: 'si' })}>
+              Sí
+            </Opcion>
+            <Opcion activa={r.actividad === 'no'} onClick={() => elegirYSeguir({ actividad: 'no' })}>
+              No
+            </Opcion>
+          </div>
+          {r.actividad === 'si' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ ease: golpe }} className="mt-5" onKeyDown={enter}>
+              <Campo etiqueta={F.actividad.cual}>
+                <input
+                  autoFocus
+                  className={claseInput}
+                  value={r.actividadCual}
+                  onChange={(e) => poner({ actividadCual: e.target.value })}
+                  maxLength={120}
+                  placeholder={F.actividad.ejemplo}
+                />
+              </Campo>
+            </motion.div>
+          )}
+        </>
+      );
+
     case 'salud':
       return (
         <>
@@ -638,6 +683,75 @@ const NotaConfidencial = () => (
   </p>
 );
 
+// ---------- cartel antes de enviar: "Nos vemos en Patagonia 585" ----------
+function AntesDeEnviar({ r, onEnviar, onCerrar }) {
+  const boton = useRef(null);
+  const cerrar = useRef(onCerrar);
+  cerrar.current = onCerrar;
+
+  useEffect(() => {
+    boton.current?.focus();
+    const tecla = (e) => e.key === 'Escape' && cerrar.current();
+    window.addEventListener('keydown', tecla);
+    const antes = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', tecla);
+      document.body.style.overflow = antes;
+    };
+  }, []);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 grid place-items-center bg-black/80 px-4 backdrop-blur-sm"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onCerrar}
+    >
+      <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="previo-titulo"
+        aria-describedby="previo-texto"
+        onClick={(e) => e.stopPropagation()}
+        initial={{ scale: 0.85, y: 40, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.92, y: 20, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+        className="relative w-full max-w-[520px] border-2 border-rojo bg-panel px-5 pb-6 pt-8 text-center shadow-[8px_8px_0_#e3131b] sm:px-8"
+      >
+        <motion.span
+          className="mx-auto grid h-16 w-16 place-items-center bg-rojo text-white [clip-path:polygon(50%_0,100%_25%,100%_75%,50%_100%,0_75%,0_25%)]"
+          initial={{ y: -24, opacity: 0 }}
+          animate={{ y: [-24, 0, -8, 0], opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
+          aria-hidden="true"
+        >
+          <IconoPin width={30} height={30} />
+        </motion.span>
+
+        <p className="mt-5 font-cond text-lg font-bold uppercase tracking-[.1em] text-rojo">{conDatos(F.previo.antetitulo, r)}</p>
+        <h2 id="previo-titulo" className="tit mt-1 text-[clamp(36px,9vw,56px)] leading-[.88]">
+          {conDatos(F.previo.titulo, r)}
+        </h2>
+        <p className="mt-2 font-cond text-[17px] font-bold uppercase tracking-[.08em] text-gris">{negocio.zona}</p>
+        <p id="previo-texto" className="mx-auto mt-4 max-w-[40ch] text-[16px] leading-relaxed text-[#dcdcdc]">
+          {conDatos(F.previo.texto, r)}
+        </p>
+
+        <button ref={boton} type="button" className="btn btn-rojo mt-6 w-full" onClick={onEnviar}>
+          <IconoWhatsApp />
+          {F.previo.boton}
+        </button>
+        <button type="button" className="mt-4 text-sm text-gris underline underline-offset-4 hover:text-white" onClick={onCerrar}>
+          {F.previo.volver}
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ---------- final: bienvenida ----------
 function Fin({ r, onReenviar, onOtra }) {
   const nombre = primerNombre(r.nombre).toUpperCase() || 'CAMPEÓN';
@@ -721,6 +835,10 @@ function Fin({ r, onReenviar, onOtra }) {
             <IconoWhatsApp width={20} height={20} />
             Abrir WhatsApp de nuevo
           </button>
+          <Link to="/mapa" className="btn btn-borde btn-chico">
+            <IconoPin width={18} height={18} />
+            Cómo llegar
+          </Link>
           <Link to="/" className="btn btn-borde btn-chico">
             Ir a la web
           </Link>

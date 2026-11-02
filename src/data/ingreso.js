@@ -27,6 +27,13 @@ export const ingreso = {
     'Entrenar por salud y bienestar general',
     'Mejorar mi condición física general',
   ],
+  // Pregunta de actividad actual (va después de los objetivos). Si responde "Sí", se le pide cuál.
+  actividad: {
+    pregunta: '¿Estás haciendo alguna actividad física actualmente?',
+    sub: 'Gimnasio, fútbol, running, natación, lo que sea. Nos sirve para saber desde dónde arrancás.',
+    cual: '¿Cuál?',
+    ejemplo: 'Ej: fútbol 2 veces por semana',
+  },
 
   // ---------------- ETAPA 3 ----------------
   // corto = cómo aparece en el WhatsApp · alerta = respuestas que piden el detalle (pregunta 7)
@@ -50,6 +57,17 @@ export const ingreso = {
     { t: 'Respeto y convivencia', d: 'Pedimos mantener un trato respetuoso hacia los profesores, compañeros y las instalaciones del gimnasio.' },
     { t: 'Cuidado del equipamiento', d: 'Es responsabilidad de todos utilizar correctamente los elementos y devolverlos a su lugar después de cada entrenamiento.' },
   ],
+
+  // ---------------- ANTES DE ENVIAR ----------------
+  // Cartel que salta al tocar "Enviar inscripción", antes de abrir WhatsApp.
+  // {nombre} = su primer nombre · {direccion} = negocio.direccion de starke.js (o la zona si está vacía)
+  previo: {
+    antetitulo: '¡Listo, {nombre}!',
+    titulo: 'Nos vemos en {direccion}',
+    texto: 'Mandanos tu ficha por WhatsApp y coordinamos tu primer entrenamiento. Traé ropa cómoda, toalla y agua.',
+    boton: 'Enviar ficha por WhatsApp',
+    volver: 'Volver a revisar mis datos',
+  },
 
   // ---------------- FINAL ----------------
   // Video de bienvenida del responsable de Starke: poné el archivo en public/video/ y escribí la ruta,

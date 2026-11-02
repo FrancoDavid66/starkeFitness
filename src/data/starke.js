@@ -7,7 +7,7 @@ export const negocio = {
   usuario: '@starke.fit',
   bajada: 'Centro de entrenamiento integral',
   zona: 'González Catán, La Matanza',
-  direccion: '', // PENDIENTE: calle y número. Si queda vacío, se muestra solo la zona.
+  direccion: 'Patagonia 585', // calle y número (también sale en el cartel final del formulario de ingreso)
   // Número de la web vieja de Starke y de sus flyers. Confirmar con el dueño.
   whatsapp: '5491123709305',
   instagram: 'https://www.instagram.com/starke.fit/',
