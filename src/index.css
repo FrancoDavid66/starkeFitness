@@ -471,8 +471,11 @@ html.lenis body {
   -webkit-text-stroke: 2px rgba(255, 255, 255, 0.2);
   transform: rotate(-6deg);
 }
+/* el botón de WhatsApp va suelto abajo a la derecha: así el título usa todo el ancho */
 .lt-destacada-wa {
-  flex: none;
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
   display: grid;
   place-items: center;
   width: 56px;
@@ -737,6 +740,113 @@ html.lenis body {
   .lt-cinta > div {
     animation: none;
   }
+}
+
+/* ============================================================
+   MATI (el coach en pixel art, src/components/Mati.jsx)
+   Se ve siempre a tamaño entero (99 o 198 px) y sin suavizar.
+   ============================================================ */
+.mati {
+  display: block;
+  flex: none;
+  background-repeat: no-repeat;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+.mati-fila {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.mati-fila-abajo {
+  flex-direction: column;
+  gap: 18px;
+}
+/* globito blanco con sombra roja corrida (como el cartel final) */
+.mati-globo {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px 12px;
+  background: #fff;
+  color: #0b0b0b;
+  font-family: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif;
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.12;
+  box-shadow: 5px 5px 0 #e3131b;
+}
+/* colita escalonada que apunta a Mati */
+.mati-globo::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  background: #fff;
+  clip-path: polygon(100% 0, 66.6% 0, 66.6% 33.3%, 0 33.3%, 0 66.6%, 66.6% 66.6%, 66.6% 100%, 100% 100%);
+}
+.mati-globo-abajo {
+  flex: none;
+  max-width: 34ch;
+  text-align: center;
+}
+.mati-globo-abajo::before {
+  left: 50%;
+  top: -12px;
+  margin: 0 0 0 -6px;
+  clip-path: polygon(0 100%, 0 66.6%, 33.3% 66.6%, 33.3% 0, 66.6% 0, 66.6% 66.6%, 100% 66.6%, 100% 100%);
+}
+/* destello blanco cuando Mati se transforma */
+.mati-destello {
+  position: absolute;
+  inset: -35%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #fff 0 28%, rgba(255, 255, 255, 0.7) 42%, rgba(227, 19, 27, 0.35) 58%, transparent 72%);
+  pointer-events: none;
+  animation: mati-destello 0.5s ease-out forwards;
+}
+@keyframes mati-destello {
+  from {
+    opacity: 1;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+/* flash de toda la pantalla al final del formulario */
+.flash-pantalla {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: #fff;
+  pointer-events: none;
+  animation: flash-pantalla 0.7s ease-out forwards;
+}
+@keyframes flash-pantalla {
+  from {
+    opacity: 0.95;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mati-destello,
+  .flash-pantalla {
+    display: none;
+  }
+}
+/* en /links: Mati asoma abajo a la derecha de la tarjeta de la clase gratis */
+.lt-destacada-mati {
+  position: absolute;
+  right: 6px;
+  bottom: 0;
+  z-index: 1;
 }
 
 /* ============================================================

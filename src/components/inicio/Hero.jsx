@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Tablero from '../Tablero';
+import Mati from '../Mati';
 import { IconoFlecha } from '../Iconos';
 import { Link } from '../../lib/router';
 import { linkWhatsApp } from '../../lib/util';
@@ -56,6 +57,8 @@ export default function Hero({ listo }) {
               Ver suplementos
             </Link>
           </div>
+          {/* Mati invita a inscribirse; cada tanto se transforma */}
+          <Mati className="mt-9 max-w-[480px]" frase={listo ? mensajes.matiPortada : ''} modo="vivo" poder />
         </motion.div>
       </div>
 

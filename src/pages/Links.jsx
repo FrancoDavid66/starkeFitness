@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Logo from '../components/Logo';
 import FotoProducto from '../components/FotoProducto';
+import Mati from '../components/Mati';
 import { Punto } from '../components/Tablero';
 import { IconoBolsa, IconoFlecha, IconoInstagram, IconoMas, IconoPin, IconoReloj, IconoWeb, IconoWhatsApp } from '../components/Iconos';
 import { usePedido } from '../context/Pedido';
@@ -152,12 +153,13 @@ export default function Links() {
           <div className="lt-avatar">
             <Logo className="h-full w-full" />
           </div>
+
           <h1 className="tit mt-2.5 text-[36px] leading-[.95]">{negocio.nombre}</h1>
           <p className="mt-1 text-[14.5px] text-gris">
             {negocio.usuario} · {negocio.bajada}
           </p>
-          <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2">
-            <p className="inline-flex h-10 items-center gap-2 rounded-full border border-[#333] bg-[#0d0d0d] px-3.5 font-cond text-[14.5px] font-bold uppercase tracking-[.04em]">
+          <div className="mt-3.5 flex flex-wrap items-center justify-center gap-1.5">
+            <p className="inline-flex h-10 items-center gap-2 rounded-full border border-[#333] bg-[#0d0d0d] px-3 font-cond text-[14.5px] font-bold uppercase tracking-[.04em]">
               <Punto abierto={r.abierto} />
               {estadoCorto}
             </p>
@@ -173,24 +175,25 @@ export default function Links() {
           </div>
         </motion.div>
 
-        {/* Destacada: primera clase gratis */}
+        {/* Destacada: primera clase gratis (Mati asoma abajo a la derecha y "lo dice") */}
         <motion.div variants={item} className="mt-5">
           <a className="lt-destacada" href={linkWhatsApp(mensajes.claseGratis)} target="_blank" rel="noopener">
             <span className="lt-destacada-fondo" aria-hidden="true">
               Gratis
             </span>
-            <span className="flex flex-col items-start">
+            <span className="flex flex-col items-start pr-[96px]">
               <span className="rounded-full bg-black px-2.5 py-[3px] font-cond text-[13px] font-bold uppercase tracking-[.1em]">Sin compromiso</span>
-              <span className="mt-2 font-cond text-[33px] font-black uppercase italic leading-[.86]">
+              <span className="mt-2 font-cond text-[clamp(26px,7.6vw,31px)] font-black uppercase italic leading-[.86]">
                 Probá tu primera
                 <br />
                 clase gratis
               </span>
-              <span className="mt-2 text-[13.5px] font-medium leading-snug text-white/90">Escribinos por WhatsApp y reservá tu lugar</span>
+              <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[13.5px] font-semibold leading-none text-negro">
+                <IconoWhatsApp width={16} height={16} className="text-[#1fb855]" />
+                Reservá por WhatsApp
+              </span>
             </span>
-            <span className="lt-destacada-wa">
-              <IconoWhatsApp width={28} height={28} />
-            </span>
+            <Mati modo="vivo" poder className="lt-destacada-mati" />
           </a>
         </motion.div>
 

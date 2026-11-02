@@ -58,14 +58,42 @@ export const ingreso = {
     { t: 'Cuidado del equipamiento', d: 'Es responsabilidad de todos utilizar correctamente los elementos y devolverlos a su lugar después de cada entrenamiento.' },
   ],
 
-  // ---------------- ANTES DE ENVIAR ----------------
-  // Cartel que salta al tocar "Enviar inscripción", antes de abrir WhatsApp.
+  // ---------------- MATI ----------------
+  // Lo que dice Mati (el coach en pixel art) en cada paso. Si una frase queda vacía, Mati no habla en ese paso.
+  // Cuando falta completar algo, dice "¡Ey!" + el aviso, con las cejas levantadas.
+  mati: {
+    inicio: '¡Hola! Soy Mati, el coach de Starke. Te ayudo a completar tu ficha: son 3 minutos.',
+    plan: 'Arrancamos: elegí cuántos días por semana querés venir.',
+    acuerdo: 'Antes de seguir, confirmame que el plan te cierra.',
+    objetivos: '¿Qué querés lograr? Podés marcar más de uno.',
+    actividad: '¿Venís entrenando algo? Así sé desde dónde arrancamos.',
+    actividadSi: '¡Bien ahí! Contame qué hacés.',
+    // una por cada pregunta de salud, en orden
+    salud: [
+      'Ahora unas preguntas de salud. Son para cuidarte, respondé tranqui.',
+      'Seguimos. Vas bárbaro.',
+      'Bien ahí, una menos.',
+      'Ya vamos por la mitad.',
+      'Dale que ya casi.',
+      'Última de salud.',
+    ],
+    detalle: 'Contame un poco así adaptamos los ejercicios a vos.',
+    reglamento: 'Las reglas de la casa. Son cortitas, leelas antes de aceptar.',
+    datos1: '¡Ya casi! Dejame tus datos para la ficha.',
+    datos2: 'Último paso: ¿cuándo arrancás?',
+    bloqueo: 'Tranqui, escribinos por WhatsApp y lo charlamos.',
+    aviso: '¡Ey! ',
+  },
+
+  // ---------------- ÚLTIMO PASO (en la bienvenida) ----------------
+  // Al tocar "Terminar inscripción" sale la bienvenida (Mati se transforma) y ahí está esta caja
+  // con el botón que manda la ficha por WhatsApp.
   // {nombre} = su primer nombre · {direccion} = negocio.direccion de starke.js (o la zona si está vacía)
   previo: {
-    antetitulo: '¡Listo, {nombre}!',
+    antetitulo: 'Último paso, {nombre}',
     titulo: 'Nos vemos en {direccion}',
     texto: 'Mandanos tu ficha por WhatsApp y coordinamos tu primer entrenamiento. Traé ropa cómoda, toalla y agua.',
-    boton: 'Enviar ficha por WhatsApp',
+    boton: 'Enviar datos',
     volver: 'Volver a revisar mis datos',
   },
 

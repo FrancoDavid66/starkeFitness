@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Logo from '../components/Logo';
+import Mati from '../components/Mati';
 import { IconoFlecha, IconoPin, IconoWhatsApp } from '../components/Iconos';
 import { ingreso as F } from '../data/ingreso';
 import { negocio } from '../data/starke';
@@ -117,6 +118,22 @@ const falta = (p, r) => {
   }
 };
 
+// Lo que dice Mati en cada paso (textos en ingreso.js -> mati)
+const fraseMati = (p, r) => {
+  const M = F.mati;
+  if (p.k === 'salud') return M.salud[p.n] || '';
+  if ((p.k === 'acuerdo' && r.acuerdo === 'no') || (p.k === 'reglamento' && r.reglamento === 'no')) return M.bloqueo;
+  if (p.k === 'actividad' && r.actividad === 'si') return M.actividadSi;
+  return M[p.k] || '';
+};
+// Con qué cara lo dice: serio en salud y reglamento, se ríe con el "¡Bien ahí!"
+const caraMati = (p, r) => {
+  if (p.k === 'reglamento' && r.reglamento === 'no') return 'normal';
+  if (['salud', 'detalle', 'reglamento'].includes(p.k)) return 'serio';
+  if (p.k === 'actividad' && r.actividad === 'si') return 'risa';
+  return 'normal';
+};
+
 // Mensaje que le llega al dueño
 const armarMensaje = (r) => {
   const plan = F.planes.find((p) => p.id === r.plan);
@@ -157,14 +174,15 @@ export default function Ingreso() {
   const [i, setI] = useState(guardado?.i || 0);
   const [dir, setDir] = useState(1);
   const [aviso, setAviso] = useState(null);
-  const [previo, setPrevio] = useState(false); // cartel "Nos vemos en…" antes de abrir WhatsApp
+  const [intentos, setIntentos] = useState(0); // cada vez que falta algo, Mati lo vuelve a decir
+  const [enviado, setEnviado] = useState(guardado?.enviado || false); // ya tocó "Enviar datos" en la bienvenida
   const avanzarAuto = useRef(null);
 
   const pasos = useMemo(() => armarPasos(r), [r]);
   const paso = pasos[Math.min(i, pasos.length - 1)];
   const ultimo = i >= pasos.length - 1;
 
-  useEffect(() => guardar({ fase, r, i }), [fase, r, i]);
+  useEffect(() => guardar({ fase, r, i, enviado }), [fase, r, i, enviado]);
   useEffect(() => () => clearTimeout(avanzarAuto.current), []);
 
   const poner = (cambios) => {
@@ -183,10 +201,19 @@ export default function Ingreso() {
   const siguiente = (rActual = r) => {
     const f = falta(paso, rActual);
     if (f) {
-      if (f !== 'bloqueado') setAviso(f);
+      if (f !== 'bloqueado') {
+        setAviso(f);
+        setIntentos((n) => n + 1);
+      }
       return;
     }
-    if (ultimo) return setPrevio(true); // primero el cartel, después WhatsApp
+    if (ultimo) {
+      // primero la bienvenida (con Mati transformándose) y desde ahí se manda todo por WhatsApp
+      setEnviado(false);
+      setFase('fin');
+      irArriba(true);
+      return;
+    }
     ir(i + 1);
   };
 
@@ -202,16 +229,15 @@ export default function Ingreso() {
     }, 320);
   };
 
-  const enviar = (rActual = r) => {
-    window.open(linkWa(armarMensaje(rActual)), '_blank', 'noopener');
-    setPrevio(false);
-    setFase('fin');
-    irArriba(true);
+  const enviar = () => {
+    window.open(linkWa(armarMensaje(r)), '_blank', 'noopener');
+    setEnviado(true);
   };
 
   const reiniciar = () => {
     setR(VACIO);
     setI(0);
+    setEnviado(false);
     setFase('inicio');
   };
 
@@ -242,6 +268,15 @@ export default function Ingreso() {
           <motion.div key="wizard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mx-auto max-w-[720px] px-4">
             <Progreso pasos={pasos} i={i} />
 
+            {/* Mati acompaña cada paso: pulgar arriba al empezar cada etapa nueva, sorprendido si falta algo */}
+            <Mati
+              className="mt-6"
+              frase={aviso ? F.mati.aviso + aviso : fraseMati(paso, r)}
+              cara={aviso ? 'sorpresa' : caraMati(paso, r)}
+              gesto={!aviso && paso.e > 0 && pasos.findIndex((p) => p.e === paso.e) === i ? 'pulgar' : null}
+              vez={aviso ? intentos : 0}
+            />
+
             <AnimatePresence mode="wait" custom={dir} initial={false}>
               <motion.div
                 key={`${paso.k}-${paso.q?.id || ''}`}
@@ -255,7 +290,7 @@ export default function Ingreso() {
                 animate="quieto"
                 exit="sale"
                 transition={{ duration: 0.32, ease: golpe }}
-                className="pt-7"
+                className="pt-6"
               >
                 <Paso paso={paso} r={r} poner={poner} elegirYSeguir={elegirYSeguir} siguiente={siguiente} />
               </motion.div>
@@ -289,8 +324,8 @@ export default function Ingreso() {
                 >
                   {ultimo ? (
                     <>
-                      <IconoWhatsApp />
-                      Enviar inscripción
+                      Terminar inscripción
+                      <IconoFlecha />
                     </>
                   ) : (
                     <>
@@ -304,10 +339,21 @@ export default function Ingreso() {
           </motion.div>
         )}
 
-        {fase === 'fin' && <Fin key="fin" r={r} onReenviar={() => window.open(linkWa(armarMensaje(r)), '_blank', 'noopener')} onOtra={reiniciar} />}
+        {fase === 'fin' && (
+          <Fin
+            key="fin"
+            r={r}
+            enviado={enviado}
+            onEnviar={enviar}
+            onRevisar={() => {
+              setFase('wizard');
+              irArriba(true);
+            }}
+            onOtra={reiniciar}
+          />
+        )}
       </AnimatePresence>
 
-      <AnimatePresence>{previo && fase === 'wizard' && <AntesDeEnviar key="previo" r={r} onEnviar={() => enviar()} onCerrar={() => setPrevio(false)} />}</AnimatePresence>
     </section>
   );
 }
@@ -320,8 +366,9 @@ function Inicio({ onEmpezar, enCurso }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.45, ease: golpe }}
-      className="mx-auto max-w-[720px] px-4 pt-[clamp(40px,8vh,90px)]"
+      className="mx-auto max-w-[720px] px-4 pt-[clamp(28px,6vh,70px)]"
     >
+      <Mati className="mb-9" frase={F.mati.inicio} gesto="guino" />
       <p className="font-cond text-lg font-bold uppercase tracking-[.1em] text-rojo">{F.lema}</p>
       <h1 className="tit mt-2 text-[clamp(52px,12vw,96px)] leading-[.86]">
         Empezá a<br />
@@ -658,7 +705,7 @@ function Paso({ paso, r, poner, elegirYSeguir, siguiente }) {
     case 'datos2':
       return (
         <>
-          <Pregunta sub="Último paso: cuando toques Enviar se abre WhatsApp con tu ficha para mandársela a Starke.">¿Cuándo arrancás?</Pregunta>
+          <Pregunta sub="Último paso: tocá Terminar, vas a ver tu bienvenida y desde ahí mandás tu ficha por WhatsApp.">¿Cuándo arrancás?</Pregunta>
           <div className="mt-6 grid gap-5" onKeyDown={enter}>
             <Campo etiqueta="Turno en el que querés entrenar" ayuda="Días y horario que te quedan cómodos.">
               <input className={claseInput} value={r.turno} onChange={(e) => poner({ turno: e.target.value })} placeholder="Ej: lunes, miércoles y viernes a las 19 hs" />
@@ -683,80 +730,13 @@ const NotaConfidencial = () => (
   </p>
 );
 
-// ---------- cartel antes de enviar: "Nos vemos en Patagonia 585" ----------
-function AntesDeEnviar({ r, onEnviar, onCerrar }) {
-  const boton = useRef(null);
-  const cerrar = useRef(onCerrar);
-  cerrar.current = onCerrar;
-
-  useEffect(() => {
-    boton.current?.focus();
-    const tecla = (e) => e.key === 'Escape' && cerrar.current();
-    window.addEventListener('keydown', tecla);
-    const antes = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', tecla);
-      document.body.style.overflow = antes;
-    };
-  }, []);
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-50 grid place-items-center bg-black/80 px-4 backdrop-blur-sm"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onCerrar}
-    >
-      <motion.div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="previo-titulo"
-        aria-describedby="previo-texto"
-        onClick={(e) => e.stopPropagation()}
-        initial={{ scale: 0.85, y: 40, opacity: 0 }}
-        animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.92, y: 20, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-        className="relative w-full max-w-[520px] border-2 border-rojo bg-panel px-5 pb-6 pt-8 text-center shadow-[8px_8px_0_#e3131b] sm:px-8"
-      >
-        <motion.span
-          className="mx-auto grid h-16 w-16 place-items-center bg-rojo text-white [clip-path:polygon(50%_0,100%_25%,100%_75%,50%_100%,0_75%,0_25%)]"
-          initial={{ y: -24, opacity: 0 }}
-          animate={{ y: [-24, 0, -8, 0], opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
-          aria-hidden="true"
-        >
-          <IconoPin width={30} height={30} />
-        </motion.span>
-
-        <p className="mt-5 font-cond text-lg font-bold uppercase tracking-[.1em] text-rojo">{conDatos(F.previo.antetitulo, r)}</p>
-        <h2 id="previo-titulo" className="tit mt-1 text-[clamp(36px,9vw,56px)] leading-[.88]">
-          {conDatos(F.previo.titulo, r)}
-        </h2>
-        <p className="mt-2 font-cond text-[17px] font-bold uppercase tracking-[.08em] text-gris">{negocio.zona}</p>
-        <p id="previo-texto" className="mx-auto mt-4 max-w-[40ch] text-[16px] leading-relaxed text-[#dcdcdc]">
-          {conDatos(F.previo.texto, r)}
-        </p>
-
-        <button ref={boton} type="button" className="btn btn-rojo mt-6 w-full" onClick={onEnviar}>
-          <IconoWhatsApp />
-          {F.previo.boton}
-        </button>
-        <button type="button" className="mt-4 text-sm text-gris underline underline-offset-4 hover:text-white" onClick={onCerrar}>
-          {F.previo.volver}
-        </button>
-      </motion.div>
-    </motion.div>
-  );
-}
-
 // ---------- final: bienvenida ----------
-function Fin({ r, onReenviar, onOtra }) {
+function Fin({ r, enviado, onEnviar, onRevisar, onOtra }) {
   const nombre = primerNombre(r.nombre).toUpperCase() || 'CAMPEÓN';
   const letras = nombre.split('');
   const video = useRef(null);
+  const [flash, setFlash] = useState(0); // destello de toda la pantalla cuando Mati se transforma
+  const D = 1.3; // las letras caen después de la transformación
 
   useEffect(() => {
     // intenta reproducir con sonido; si el navegador no deja, arranca en silencio
@@ -770,15 +750,22 @@ function Fin({ r, onReenviar, onOtra }) {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto max-w-[720px] px-4 pt-[clamp(30px,6vh,70px)] text-center">
-      <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 160, damping: 14 }}>
-        <Logo className="mx-auto h-[110px] w-[110px]" />
+      {flash > 0 && <div key={flash} className="flash-pantalla" aria-hidden="true" />}
+      {/* Mati carga energía (tiembla), destello y queda transformado en "modo Starke" */}
+      <motion.div
+        className="flex justify-center"
+        initial={{ scale: 0.4, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1, x: [0, -5, 5, -6, 6, -4, 4, -6, 6, -3, 3, 0] }}
+        transition={{ scale: { type: 'spring', stiffness: 220, damping: 14 }, opacity: { duration: 0.2 }, x: { duration: 1.1, delay: 0.25 } }}
+      >
+        <Mati escala={2} modo="transforma" onTransforma={() => setFlash((f) => f + 1)} />
       </motion.div>
 
       <motion.p
         className="tit mt-7 text-[clamp(34px,8vw,58px)] leading-[.9]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35, ease: golpe }}
+        transition={{ delay: D + 0.1, ease: golpe }}
       >
         ¡Bienvenido/a,
       </motion.p>
@@ -790,63 +777,90 @@ function Fin({ r, onReenviar, onOtra }) {
             className="inline-block"
             initial={{ y: 80, opacity: 0, rotate: -10 }}
             animate={{ y: 0, opacity: 1, rotate: 0 }}
-            transition={{ type: 'spring', stiffness: 420, damping: 16, delay: 0.55 + k * 0.05 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 16, delay: D + 0.3 + k * 0.05 }}
           >
             {c}
           </motion.span>
         ))}
-        <motion.span aria-hidden="true" className="inline-block" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.6 + letras.length * 0.05 }}>
+        <motion.span aria-hidden="true" className="inline-block" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: D + 0.35 + letras.length * 0.05 }}>
           !
         </motion.span>
       </h1>
-      <motion.p className="mt-3 text-[26px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
+      <motion.p className="mt-3 text-[26px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 0.8 }}>
         STARKE ❤️🖤
       </motion.p>
+
+      {/* último paso: "Nos vemos en Patagonia 585" y el botón que manda la ficha por WhatsApp */}
+      <motion.div
+        className="mx-auto mt-9 max-w-[520px] border-2 border-rojo bg-panel px-5 pb-6 pt-6 text-center shadow-[8px_8px_0_#e3131b] sm:px-8"
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay: D + 0.9, type: 'spring', stiffness: 240, damping: 20 }}
+      >
+        {!enviado ? (
+          <>
+            <p className="font-cond text-lg font-bold uppercase tracking-[.1em] text-rojo">{conDatos(F.previo.antetitulo, r)}</p>
+            <h2 className="tit mt-1 text-[clamp(34px,8.5vw,52px)] leading-[.88]">{conDatos(F.previo.titulo, r)}</h2>
+            <p className="mt-2 font-cond text-[17px] font-bold uppercase tracking-[.08em] text-gris">{negocio.zona}</p>
+            <p className="mx-auto mt-4 max-w-[40ch] text-[16px] leading-relaxed text-[#dcdcdc]">{conDatos(F.previo.texto, r)}</p>
+            <button type="button" className="btn btn-rojo destacado mt-6 w-full" onClick={onEnviar}>
+              <span className="destacado-brillo" aria-hidden="true" />
+              <IconoWhatsApp />
+              {F.previo.boton}
+            </button>
+            <button type="button" className="mt-4 text-sm text-gris underline underline-offset-4 hover:text-white" onClick={onRevisar}>
+              {F.previo.volver}
+            </button>
+          </>
+        ) : (
+          <div className="text-left">
+            <p className="font-cond text-lg font-bold uppercase tracking-[.1em] text-rojo">¡Datos enviados!</p>
+            <p className="mt-2 text-[15px] text-[#cfcfcf]">
+              Se abrió WhatsApp con tu ficha. <b className="text-white">Si todavía no la mandaste, tocá Enviar ahí</b> para confirmar tu inscripción.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button type="button" className="btn btn-rojo btn-chico" onClick={onEnviar}>
+                <IconoWhatsApp width={20} height={20} />
+                Abrir WhatsApp de nuevo
+              </button>
+              <Link to="/mapa" className="btn btn-borde btn-chico">
+                <IconoPin width={18} height={18} />
+                Cómo llegar
+              </Link>
+              <Link to="/" className="btn btn-borde btn-chico">
+                Ir a la web
+              </Link>
+              <button type="button" className="text-sm text-gris underline hover:text-white" onClick={onOtra}>
+                Inscribir a otra persona
+              </button>
+            </div>
+          </div>
+        )}
+      </motion.div>
 
       {F.video && (
         <motion.div
           className="mx-auto mt-8 aspect-[9/16] max-h-[70svh] w-auto overflow-hidden border-2 border-rojo bg-panel"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.1, ease: golpe }}
+          transition={{ delay: D + 1.1, ease: golpe }}
         >
           <video ref={video} src={F.video} className="h-full w-full object-cover" playsInline controls preload="auto" />
         </motion.div>
       )}
 
-      <motion.div className="mx-auto mt-9 max-w-[46ch] space-y-2 text-[17px] text-[#dcdcdc]" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}>
+      <motion.div className="mx-auto mt-9 max-w-[46ch] space-y-2 text-[17px] text-[#dcdcdc]" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: D + 1 }}>
         {F.cierre.map((t) => (
           <p key={t}>{t}</p>
         ))}
       </motion.div>
-      <motion.p className="tit mt-8 text-[clamp(26px,5vw,38px)] leading-none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}>
+      <motion.p className="tit mt-8 text-[clamp(26px,5vw,38px)] leading-none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: D + 1.3 }}>
         {F.remate}
       </motion.p>
       <p className="mt-2 font-cond text-[15px] font-bold uppercase tracking-[.1em] text-gris">
         Starke · {F.lema}
       </p>
 
-      <motion.div className="mt-10 border-2 border-[#3a3a3a] bg-panel p-4 text-left" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.7 }}>
-        <p className="text-[15px] text-[#cfcfcf]">
-          Se abrió WhatsApp con tu ficha. <b className="text-white">Si todavía no la mandaste, tocá Enviar ahí</b> para confirmar tu inscripción.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <button type="button" className="btn btn-rojo btn-chico" onClick={onReenviar}>
-            <IconoWhatsApp width={20} height={20} />
-            Abrir WhatsApp de nuevo
-          </button>
-          <Link to="/mapa" className="btn btn-borde btn-chico">
-            <IconoPin width={18} height={18} />
-            Cómo llegar
-          </Link>
-          <Link to="/" className="btn btn-borde btn-chico">
-            Ir a la web
-          </Link>
-          <button type="button" className="text-sm text-gris underline hover:text-white" onClick={onOtra}>
-            Inscribir a otra persona
-          </button>
-        </div>
-      </motion.div>
     </motion.div>
   );
 }

@@ -36,6 +36,8 @@ export const mensajes = {
   claseGratis: 'Hola Starke! Quiero probar mi primera clase gratis.',
   hola: 'Hola Starke!',
   pedidoIntro: 'Hola Starke! Quiero consultar precio y disponibilidad de estos productos:',
+  // lo que dice Mati en la portada de la web (abajo de los botones)
+  matiPortada: '¡Soy Mati! Tu primera clase es gratis. Y si querés arrancar ya, inscribite en 3 minutos.',
 };
 
 // Actividades: los wa.link son los del Linktree de Starke.
