@@ -160,6 +160,143 @@ html.lenis body {
 }
 
 /* ============================================================
+   BOTÓN DESTACADO (todos los "Inscribite")
+   Borde rojo con una luz que da vueltas, un brillo que lo cruza
+   cada tanto, un "latido" y la flecha que empuja.
+   Uso: agregar la clase "destacado" al botón (.btn o .lk-btn),
+   y adentro <span class="destacado-brillo"> y la flecha con
+   "destacado-flecha". "destacado-negro" = versión para fondo rojo.
+   ============================================================ */
+@property --giro {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.destacado {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-width: 0;
+  animation: destacado-latido 1.8s ease-out infinite;
+}
+/* sin borde de 2px: se compensa con padding para que mida igual que los otros botones */
+.lk-btn.destacado {
+  padding: 12px 24px;
+}
+.btn.destacado {
+  padding-left: 28px;
+  padding-right: 28px;
+}
+/* el borde: un anillo de 2px con la luz que gira */
+.destacado::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: conic-gradient(from var(--giro), #e3131b 0deg 230deg, #ff6b70 290deg, #fff 335deg, #ff6b70 350deg, #e3131b 360deg);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: destacado-giro 1.8s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+.destacado-negro {
+  --destacado-ping: rgba(0, 0, 0, 0.6);
+}
+.destacado-negro::after {
+  background: conic-gradient(from var(--giro), #0b0b0b 0deg 230deg, #5a5a5a 290deg, #fff 335deg, #5a5a5a 350deg, #0b0b0b 360deg);
+}
+/* el brillo que cruza el botón */
+.destacado-brillo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 30%, rgba(227, 19, 27, 0.35) 42%, rgba(255, 255, 255, 0.45) 50%, rgba(227, 19, 27, 0.35) 58%, transparent 70%);
+  transform: translateX(-100%);
+  animation: destacado-brillo 2.7s ease-in-out infinite;
+}
+.destacado-negro .destacado-brillo {
+  background: linear-gradient(105deg, transparent 30%, rgba(0, 0, 0, 0.25) 42%, rgba(255, 255, 255, 0.55) 50%, rgba(0, 0, 0, 0.25) 58%, transparent 70%);
+}
+.destacado-flecha {
+  flex: none;
+  animation: destacado-flecha 1.2s ease-in-out infinite;
+}
+@keyframes destacado-giro {
+  to {
+    --giro: 360deg;
+  }
+}
+@keyframes destacado-brillo {
+  0% {
+    transform: translateX(-100%);
+  }
+  30%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+/* late y larga un anillo rojo hacia afuera (como un "ping") */
+@keyframes destacado-latido {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--destacado-ping, rgba(227, 19, 27, 0.75));
+  }
+  14% {
+    transform: scale(1.06);
+  }
+  30% {
+    transform: scale(1);
+  }
+  75%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 16px rgba(227, 19, 27, 0);
+  }
+}
+@keyframes destacado-flecha {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+}
+/* "Reducir movimiento" activado (Windows con "Efectos de animación" apagado, iPhone con
+   "Reducir movimiento"…): nada se mueve ni cambia de tamaño, pero el botón se sigue
+   encendiendo y apagando en el lugar para que llame la atención igual. */
+@keyframes destacado-encendido {
+  0%,
+  100% {
+    box-shadow: 0 0 18px 2px rgba(227, 19, 27, 0);
+  }
+  50% {
+    box-shadow: 0 0 18px 2px var(--destacado-luz, rgba(227, 19, 27, 0.85));
+  }
+}
+.destacado-negro {
+  --destacado-luz: rgba(0, 0, 0, 0.6);
+}
+@media (prefers-reduced-motion: reduce) {
+  .destacado::after,
+  .destacado-brillo,
+  .destacado-flecha {
+    animation: none;
+  }
+  .destacado {
+    animation: destacado-encendido 1.6s ease-in-out infinite;
+  }
+}
+
+/* ============================================================
    RELOJ LED (siete segmentos)
    ============================================================ */
 .dg {

@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Tablero from '../Tablero';
+import { IconoFlecha } from '../Iconos';
 import { Link } from '../../lib/router';
 import { linkWhatsApp } from '../../lib/util';
 import { mensajes } from '../../data/starke';
@@ -46,8 +47,10 @@ export default function Hero({ listo }) {
             <a className="btn btn-rojo" href={linkWhatsApp(mensajes.claseGratis)} target="_blank" rel="noopener">
               Probá tu primera clase gratis
             </a>
-            <Link to="/ingreso" className="btn btn-borde">
+            <Link to="/ingreso" className="btn btn-borde destacado">
+              <span className="destacado-brillo" aria-hidden="true" />
               Inscribite
+              <IconoFlecha className="destacado-flecha" />
             </Link>
             <Link to="/shop" className="btn btn-borde">
               Ver suplementos

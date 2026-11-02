@@ -5,8 +5,8 @@ Vite + React + Tailwind + Framer Motion + Lenis. Misma base que GRAMO / MUM / Ve
 Tres páginas en una sola web:
 
 - **`/`** portada del gym (hero con el reloj LED, actividades, primera clase gratis, suplementos destacados, horarios)
-- **`/shop`** shop de suplementos (ENA, Star Nutrition, Gold Nutrition y Granger · 149 productos) sin precios: la gente arma la consulta y la manda por WhatsApp
-- **`/links`** página para la bio de Instagram (reemplaza el Linktree)
+- **`/#/shop`** shop de suplementos (ENA, Star Nutrition, Gold Nutrition y Granger · 149 productos) sin precios: la gente arma la consulta y la manda por WhatsApp
+- **`/#/links`** página para la bio de Instagram (reemplaza el Linktree)
 
 ## Arrancar
 
@@ -18,14 +18,19 @@ npm run dev
 
 ## Páginas y links para el perfil de Instagram
 
+La web usa **direcciones con `#`** (hash router): así cada página abre bien en cualquier hosting, aunque se entre directo o se recargue (nada de "Not Found").
+
 | Link | Abre |
 |---|---|
-| `TU-DOMINIO.com.ar/links` | Menú de links (clase gratis, web, productos, mapa, horarios, actividades) |
+| `TU-DOMINIO.com.ar/#/links` | Menú de links (clase gratis, inscripción, web, productos, mapa, horarios, actividades) |
 | `TU-DOMINIO.com.ar/` | La web completa (con la intro 3, 2, 1) |
-| `TU-DOMINIO.com.ar/shop` | Productos y suplementos |
-| `TU-DOMINIO.com.ar/mapa` | Mapa de Starke a pantalla completa |
-| `TU-DOMINIO.com.ar/actividades` | La web, directo en las actividades |
-| `TU-DOMINIO.com.ar/horarios` | La web, directo en horarios y mapa |
+| `TU-DOMINIO.com.ar/#/ingreso` | Formulario de ingreso (también `#/inscripcion`, `#/inscribite` y `#/empezar`) |
+| `TU-DOMINIO.com.ar/#/shop` | Productos y suplementos |
+| `TU-DOMINIO.com.ar/#/mapa` | Mapa de Starke a pantalla completa |
+| `TU-DOMINIO.com.ar/#/actividades` | La web, directo en las actividades |
+| `TU-DOMINIO.com.ar/#/horarios` | La web, directo en horarios y mapa |
+
+Los links **sin `#`** también andan (`TU-DOMINIO.com.ar/links`, `/ingreso`, `/shop`…): el build crea una carpeta por página que redirige sola a la versión con `#` (lista en `vite.config.js`). Para la bio de Instagram se puede poner `TU-DOMINIO.com.ar/links`.
 
 Entrando por cualquier link que no sea la portada, la intro no aparece (va directo).
 
@@ -38,7 +43,7 @@ Entrando por cualquier link que no sea la portada, la intro no aparece (va direc
 - **Marcas (arriba del shop)** → `src/data/marcas.js`: logo de cada marca (en `src/assets/marcas/`, sacados de las webs oficiales y pasados a blanco), tamaño del logo (`esc`) y el producto que sale de foto en su tarjeta. Sin marca elegida se ven 4 tarjetas (carrusel en el celu, 2 por fila en tablet, 4 en compu); al tocar una se convierte en un banner rojo con el logo grande, la cantidad de productos, de qué tiene más y botones para cambiar de marca o ver todas. En compu también se cambia desde la barra fija; en el celu esa fila se esconde para que la barra ocupe menos.
 - **Orden del shop** → por categoría y, adentro de cada una, intercalando marcas (así en la primera página se ven las 4). Filtros: buscador (por nombre, marca, categoría o sabor), marca, categoría y objetivo.
 - **Fotos de productos** → `src/assets/productos/`. `npm run fotos` baja la principal y la de cada sabor/tamaño de las 4 marcas (`npm run fotos -- --marca=gold` para una sola). Las de ENA quedan con el mismo nombre que en ENA; las otras como `star-…`, `gold-…`, `granger-…`. Para poner a mano la principal de un producto: `<id>.webp`. Si falta una foto, la web usa la online de la marca; si tampoco carga, muestra el nombre del producto.
-- **Formulario de ingreso (`/ingreso`, también `/inscripcion`, `/inscribite` y `/empezar`)** → todo el texto en `src/data/ingreso.js`: planes y precios, objetivos, pregunta de actividad actual (si dice "Sí" se le pide cuál), preguntas de salud, reglamento, cartel final, textos de bienvenida y número que recibe las fichas (`whatsapp: null` = el del gym). Es un wizard de 5 etapas con línea de carga (una pregunta por pantalla en salud; la pregunta 7 aparece solo si marcó algo). Si dice que no está de acuerdo con el plan o no acepta el reglamento, no puede seguir y le ofrece consultar por WhatsApp. Al tocar Enviar salta el cartel "¡Listo, NOMBRE! Nos vemos en Patagonia 585" (textos en `previo`, la dirección sale de `negocio.direccion`) y desde ahí se abre WhatsApp con la ficha completa (marca "⚠️ REVISAR" si hay antecedentes de salud) y se muestra la bienvenida con su nombre. Video de bienvenida: poner el archivo en `public/video/` y la ruta en `video` (ej. `'/video/bienvenida.mp4'`, vertical 9:16). El avance queda guardado mientras la pestaña esté abierta (si se va a WhatsApp y vuelve, no pierde nada).
+- **Formulario de ingreso (`/#/ingreso`, también `#/inscripcion`, `#/inscribite` y `#/empezar`)** → todo el texto en `src/data/ingreso.js`: planes y precios, objetivos, pregunta de actividad actual (si dice "Sí" se le pide cuál), preguntas de salud, reglamento, cartel final, textos de bienvenida y número que recibe las fichas (`whatsapp: null` = el del gym). Es un wizard de 5 etapas con línea de carga (una pregunta por pantalla en salud; la pregunta 7 aparece solo si marcó algo). Si dice que no está de acuerdo con el plan o no acepta el reglamento, no puede seguir y le ofrece consultar por WhatsApp. Al tocar Enviar salta el cartel "¡Listo, NOMBRE! Nos vemos en Patagonia 585" (textos en `previo`, la dirección sale de `negocio.direccion`) y desde ahí se abre WhatsApp con la ficha completa (marca "⚠️ REVISAR" si hay antecedentes de salud) y se muestra la bienvenida con su nombre. Video de bienvenida: poner el archivo en `public/video/` y la ruta en `video` (ej. `'/video/bienvenida.mp4'`, vertical 9:16). El avance queda guardado mientras la pestaña esté abierta (si se va a WhatsApp y vuelve, no pierde nada).
 - **Mapa** → todo en `src/data/starke.js`: `negocio.ubicacion` (lat/lng del pin) y el bloque `mapa`: estilo con el que arranca (oscuro / claro / calles), si la gente puede cambiarlo, zoom, color del pin y de la ruta, texto del cartel, radio del círculo, una indicación extra ("portón negro…"), la ruta (activa, modos auto / a pie / bici, indicaciones paso a paso), botones opcionales (Waze, Google Maps) y puntos de referencia extra (paradas, estacionamiento…).
   - No usa Google ni abre ninguna app: el mapa base es CARTO/OpenStreetMap y "Cómo llegar" pide la ubicación y dibuja el camino en el mismo mapa con OSRM (servidor gratis de FOSSGIS). Si ese servicio no responde, muestra la distancia en línea recta.
   - Uso del servicio de rutas: gratis para poco tráfico (1 pedido por segundo como máximo, con créditos a OpenStreetMap, que ya están en la tarjeta).
@@ -59,6 +64,7 @@ Entrando por cualquier link que no sea la portada, la intro no aparece (va direc
 - Mapa de Starke (portada, /mapa y "Cómo llegar" en /links): pin con el logo que flota y late, radio de 5 cuadras, estado abierto/cerrado, cambio de estilo (oscuro / claro / calles), y "Cómo llegar" que dibuja el camino desde donde estás con tiempo, distancia, modo (auto / caminando / bici) e indicaciones paso a paso. En el celu (salvo en /mapa) el mapa se mueve recién después de tocarlo.
 - Pedido / consulta: panel lateral (abajo en el celu), líneas que entran y salen, contador de productos que se actualiza (o el total, si se muestran precios). Shop con "Ver más" y barrita de progreso.
 - Navbar que se esconde al bajar, menú del celu tipo telón rojo, scroll suave con Lenis.
+- Botones "Inscribite" (portada, primera clase gratis y /links): clase `destacado` en `src/index.css`. Borde con una luz que gira, brillo que lo cruza, latido con un anillo que se expande y flecha que empuja. Con "reducir movimiento" activado no se mueven: titilan en el lugar.
 - Respeta "reducir movimiento" del sistema (`MotionConfig reducedMotion="user"`).
 
 ## Builds
@@ -68,8 +74,8 @@ npm run build          # dist/ para subir a Hostinger (public_html), incluye .ht
 npm run build:single   # dist-single/index.html (todo en un archivo, abre con doble clic)
 ```
 
-En Hostinger las páginas son `/shop`, `/links`, `/mapa`, `/actividades` y `/horarios` (el `.htaccess` hace que funcionen).
-Abierto con doble clic usa `#/shop`, `#/links`, `#/mapa`.
+Las páginas van con `#` (`/#/shop`, `/#/links`, `/#/ingreso`, `/#/mapa`…), igual en el hosting que abierto con doble clic.
+`dist/` trae además las carpetas `links/`, `shop/`, `ingreso/`… (redirecciones para los links sin `#`): subir todo junto.
 
 ## Pendiente de confirmar con Starke
 

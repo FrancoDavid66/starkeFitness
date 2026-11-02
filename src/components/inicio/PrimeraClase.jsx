@@ -5,6 +5,7 @@ import { Digito } from '../Led';
 import { mensajes, pasos } from '../../data/starke';
 import { linkWhatsApp } from '../../lib/util';
 import { Link } from '../../lib/router';
+import { IconoFlecha } from '../Iconos';
 
 export default function PrimeraClase() {
   return (
@@ -21,8 +22,10 @@ export default function PrimeraClase() {
         <a className="btn btn-negro" href={linkWhatsApp(mensajes.claseGratis)} target="_blank" rel="noopener">
           Reservar mi clase gratis
         </a>
-        <Link to="/ingreso" className="btn border-negro text-negro hover:bg-negro hover:text-white">
+        <Link to="/ingreso" className="btn destacado destacado-negro text-negro [clip-path:none] hover:bg-negro hover:text-white">
+          <span className="destacado-brillo" aria-hidden="true" />
           Ya quiero empezar: inscribirme
+          <IconoFlecha className="destacado-flecha" />
         </Link>
       </div>
     </section>

@@ -73,14 +73,15 @@ export default function Links() {
           </a>
         </motion.div>
 
-        {/* 2. Inscripción */}
+        {/* 2. Inscripción (destacado: luz que gira por el borde, brillo y flecha que empuja) */}
         <motion.div variants={item}>
-          <Link to="/ingreso" className="lk-btn">
+          <Link to="/ingreso" className="lk-btn destacado">
+            <span className="destacado-brillo" aria-hidden="true" />
             <span>
               Inscribite a Starke
               <Sub>Completá tu ficha de ingreso en 3 minutos</Sub>
             </span>
-            <IconoFlecha className="flex-none" />
+            <IconoFlecha className="destacado-flecha" />
           </Link>
         </motion.div>
 

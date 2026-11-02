@@ -1,4 +1,6 @@
-# Hostinger (Apache): HTTPS + rutas limpias (/shop, /links) que abren la web
+# Hostinger (Apache): HTTPS + cualquier dirección desconocida abre la web.
+# La web usa direcciones con # (dominio/#/ingreso), así que funciona aunque este archivo no esté;
+# los links limpios (dominio/ingreso, /links…) tienen además su carpeta de redirección en el build.
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
